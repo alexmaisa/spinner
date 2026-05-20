@@ -1,0 +1,11 @@
+{
+  "name": "spinner-monorepo",
+  "private": true,
+  "scripts": {
+    "dev:frontend": "pnpm --filter frontend dev",
+    "build:frontend": "pnpm --filter frontend build",
+    "preview:frontend": "pnpm --filter frontend preview",
+    "dev:backend": "cd backend && go run cmd/api/main.go",
+    "build:backend": "cd backend && go build -o bin/api cmd/api/main.go"
+  }
+}
