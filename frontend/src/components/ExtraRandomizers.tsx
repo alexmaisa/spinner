@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Play, Shuffle, Users, Plus, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Play, Shuffle, Users } from 'lucide-react';
 
 export const ExtraRandomizers: React.FC = () => {
   // Tab control
@@ -8,7 +8,6 @@ export const ExtraRandomizers: React.FC = () => {
   // RNG State
   const [minVal, setMinVal] = useState(1);
   const [maxVal, setMaxVal] = useState(100);
-  const [rngResult, setRngResult] = useState<number | null>(null);
   const [rollingDigits, setRollingDigits] = useState('00');
   const [isRolling, setIsRolling] = useState(false);
   const [rngHistory, setRngHistory] = useState<number[]>([]);
@@ -18,7 +17,6 @@ export const ExtraRandomizers: React.FC = () => {
   const [shuffledList, setShuffledList] = useState<string[]>([]);
   const [teamCount, setTeamCount] = useState(2);
   const [teams, setTeams] = useState<string[][]>([]);
-  const [listHistory, setListHistory] = useState<string[][]>([]);
 
   // 1. RNG Slot-machine Rolling Animation
   const rollNumber = () => {
@@ -28,7 +26,6 @@ export const ExtraRandomizers: React.FC = () => {
       return;
     }
     setIsRolling(true);
-    setRngResult(null);
 
     const range = maxVal - minVal + 1;
     const finalOutcome = Math.floor(Math.random() * range) + minVal;
@@ -45,7 +42,6 @@ export const ExtraRandomizers: React.FC = () => {
 
       if (counter >= totalDuration) {
         clearInterval(interval);
-        setRngResult(finalOutcome);
         setRollingDigits(String(finalOutcome).padStart(String(maxVal).length, '0'));
         setRngHistory((prev) => [finalOutcome, ...prev].slice(0, 10));
         setIsRolling(false);
