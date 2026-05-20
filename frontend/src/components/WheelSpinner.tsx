@@ -81,6 +81,8 @@ interface WheelSpinnerProps {
   targetIndex?: number | null;     // Enforced target from WebSocket
   spinDuration?: number;           // Enforced spin time in seconds
   isMultiplayerMode?: boolean;
+  onSegmentsChange?: (segments: WheelSegment[]) => void;
+  triggerSpinToken?: number;
 }
 
 export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
@@ -90,6 +92,8 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
   targetIndex = null,
   spinDuration = 5,
   isMultiplayerMode = false,
+  onSegmentsChange,
+  triggerSpinToken = 0,
 }) => {
   const [segments, setSegments] = useState<WheelSegment[]>(
     initialSegments || [
@@ -109,6 +113,36 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const angleRef = useRef(0);
   const spinningRef = useRef(false);
+
+  // Sync internal segments when initialSegments from parent changes
+  useEffect(() => {
+    if (initialSegments) {
+      const serializedInit = JSON.stringify(initialSegments);
+      const serializedCurr = JSON.stringify(segments);
+      if (serializedInit !== serializedCurr) {
+        setSegments(initialSegments);
+      }
+    }
+  }, [initialSegments]);
+
+  // Sync back segment changes to parent component
+  const lastEmittedSegmentsRef = useRef<string>('');
+  useEffect(() => {
+    const serialized = JSON.stringify(segments);
+    if (serialized !== lastEmittedSegmentsRef.current) {
+      lastEmittedSegmentsRef.current = serialized;
+      if (onSegmentsChange) {
+        onSegmentsChange(segments);
+      }
+    }
+  }, [segments, onSegmentsChange]);
+
+  // Trigger spin animation when triggerSpinToken changes
+  useEffect(() => {
+    if (triggerSpinToken && triggerSpinToken > 0) {
+      spin();
+    }
+  }, [triggerSpinToken]);
 
   // Generate an esthetically pleasing HSL color based on segment count
   const getHarmoniousColor = (index: number, total: number) => {
