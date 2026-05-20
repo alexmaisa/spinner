@@ -223,3 +223,80 @@
     max-height: none;
   }
 }
+
+/* RNG & List Shuffler Layout Styles */
+.rng-grid {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 32px;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+.rng-history-panel {
+  padding: 20px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-self: stretch;
+  min-height: 0;
+}
+
+.shuffler-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 32px;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+.shuffler-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+}
+
+.shuffler-textarea {
+  flex: 1;
+  min-height: 240px;
+  resize: none;
+  font-family: monospace;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.shuffler-outputs {
+  min-height: 0;
+}
+
+@media (max-width: 992px) {
+  .rng-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    height: auto;
+  }
+  
+  .rng-history-panel {
+    min-height: 240px;
+  }
+  
+  .shuffler-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    height: auto;
+  }
+  
+  .shuffler-textarea {
+    flex: none;
+    height: 180px;
+  }
+  
+  .shuffler-outputs {
+    min-height: 300px;
+  }
+}
+

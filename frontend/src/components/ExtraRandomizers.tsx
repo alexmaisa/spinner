@@ -92,7 +92,7 @@ export const ExtraRandomizers: React.FC = () => {
   };
 
   return (
-    <div className="arena-card glass-panel" style={{ gridTemplateColumns: '1fr', display: 'flex', flexDirection: 'column', padding: '24px' }}>
+    <div className="arena-card glass-panel" style={{ gridTemplateColumns: '1fr', display: 'flex', flexDirection: 'column', padding: '24px', height: '100%', width: '100%', boxSizing: 'border-box' }}>
       {/* Selector Tabs */}
       <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px', marginBottom: '24px', width: '100%' }}>
         <button 
@@ -113,17 +113,17 @@ export const ExtraRandomizers: React.FC = () => {
 
       {/* RNG TAB */}
       {activeTab === 'number' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 240px', gap: '32px', width: '100%', alignItems: 'center' }}>
+        <div className="rng-grid">
           {/* Main Visual Roll Box */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
             <div className="glass-panel" style={{
               width: '100%',
-              maxWidth: '360px',
-              height: '180px',
+              maxWidth: '480px',
+              height: '240px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '84px',
+              fontSize: '100px',
               fontFamily: '"Outfit", sans-serif',
               fontWeight: '800',
               letterSpacing: '0.05em',
@@ -139,7 +139,7 @@ export const ExtraRandomizers: React.FC = () => {
             </div>
 
             {/* Config inputs & Spin Button */}
-            <div style={{ width: '100%', maxWidth: '360px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ width: '100%', maxWidth: '480px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div style={{ display: 'flex', gap: '16px' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>Min Value</label>
@@ -171,7 +171,7 @@ export const ExtraRandomizers: React.FC = () => {
           </div>
 
           {/* History sidebar */}
-          <div className="glass-panel" style={{ padding: '16px', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '12px', minHeight: '320px', alignSelf: 'stretch' }}>
+          <div className="glass-panel rng-history-panel">
             <h4 style={{ fontSize: '14px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px', color: 'var(--text-secondary)' }}>Recent Rolls</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto', flex: 1 }}>
               {rngHistory.length === 0 ? (
@@ -191,13 +191,12 @@ export const ExtraRandomizers: React.FC = () => {
 
       {/* LIST TAB */}
       {activeTab === 'list' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '24px', width: '100%' }}>
+        <div className="shuffler-grid">
           {/* Inputs Column */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="shuffler-inputs">
             <label style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '600' }}>Enter entries (one per line):</label>
             <textarea
-              className="glass-input"
-              style={{ minHeight: '200px', resize: 'vertical', fontFamily: 'monospace', fontSize: '13px' }}
+              className="glass-input shuffler-textarea"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder="Enter list of items..."
@@ -229,12 +228,12 @@ export const ExtraRandomizers: React.FC = () => {
           </div>
 
           {/* Outputs Column */}
-          <div className="glass-panel" style={{ padding: '20px', borderRadius: '16px', minHeight: '380px', display: 'flex', flexDirection: 'column' }}>
+          <div className="glass-panel shuffler-outputs" style={{ padding: '20px', borderRadius: '16px', display: 'flex', flexDirection: 'column' }}>
             <h4 style={{ fontSize: '15px', color: 'var(--text-secondary)', marginBottom: '16px' }}>Randomization Outputs</h4>
 
             {/* Flat Shuffled List */}
             {shuffledList.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto', flex: 1, maxHeight: '340px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto', flex: 1 }}>
                 {shuffledList.map((item, idx) => (
                   <div key={idx} className="glass-card" style={{ padding: '10px 16px', display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 'bold' }}>
@@ -248,7 +247,7 @@ export const ExtraRandomizers: React.FC = () => {
 
             {/* Divided Teams Grid */}
             {teams.length > 0 && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '16px', overflowY: 'auto', flex: 1, maxHeight: '340px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '16px', overflowY: 'auto', flex: 1 }}>
                 {teams.map((team, idx) => (
                   <div key={idx} className="glass-panel" style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '12px' }}>
                     <h5 style={{ fontSize: '14px', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '6px', marginBottom: '10px', color: idx % 2 === 0 ? 'var(--neon-cyan)' : 'var(--neon-purple)' }}>
