@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Play, Plus, Trash2, Volume2, VolumeX, Share2, Users } from 'lucide-react';
+import { Play, Plus, Trash2, Volume2, VolumeX } from 'lucide-react';
 
 // Reusable Audio Engine to prevent resource leaks
 class AudioEngine {
@@ -347,8 +347,6 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
           const radius = size / 2;
           const cx = radius;
           const cy = radius;
-          const dpr = window.devicePixelRatio || 1;
-
           ctx.clearRect(0, 0, size, size);
           
           let currentAngle = angleRef.current;
