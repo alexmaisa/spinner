@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Play } from 'lucide-react';
 
 export const CoinFlipper3D: React.FC = () => {
   const [result, setResult] = useState<'Heads' | 'Tails' | null>(null);
