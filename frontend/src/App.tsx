@@ -8,17 +8,17 @@ import {
   Users, 
   LogOut, 
   LogIn, 
-  Plus, 
   Trash2, 
   Copy, 
   Check, 
   Link, 
   Radio, 
   Save, 
-  History 
+  History,
+  Dices
 } from 'lucide-react';
 import './App.css';
-import { WheelSpinner, WheelSegment } from './components/WheelSpinner';
+import { WheelSpinner, type WheelSegment } from './components/WheelSpinner';
 import { DiceRoller3D } from './components/DiceRoller3D';
 import { CoinFlipper3D } from './components/CoinFlipper3D';
 import { ExtraRandomizers } from './components/ExtraRandomizers';
@@ -64,7 +64,6 @@ export default function App() {
   const [targetIndex, setTargetIndex] = useState<number | null>(null);
   const [spinDuration, setSpinDuration] = useState(5);
   const [spinTriggerToken, setSpinTriggerToken] = useState(0);
-  const [wsLoading, setWsLoading] = useState(false);
 
   // History state (Cloud synced)
   const [spinHistory, setSpinHistory] = useState<any[]>([]);
@@ -247,7 +246,6 @@ export default function App() {
 
   // Join an active WebSocket room (Viewer Mode)
   const joinLiveRoom = async (id: string) => {
-    setWsLoading(true);
     setRoomID(id);
     setIsMultiplayerMode(true);
     setIsHost(false);
@@ -261,7 +259,7 @@ export default function App() {
       socketRef.current = ws;
 
       ws.onopen = () => {
-        setWsLoading(false);
+        // Connected successfully
       };
 
       ws.onmessage = (event) => {
@@ -294,7 +292,6 @@ export default function App() {
       };
     } catch (e) {
       console.error('Failed to establish WebSocket session:', e);
-      setWsLoading(false);
     }
   };
 
