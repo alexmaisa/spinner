@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react';
-import { Play } from 'lucide-react';
 
 interface DiceProps {
   value: number;
