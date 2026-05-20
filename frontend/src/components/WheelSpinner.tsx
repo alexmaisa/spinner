@@ -190,7 +190,7 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
     if (!ctx) return;
 
     const dpr = window.devicePixelRatio || 1;
-    const size = 480;
+    const size = 560;
     canvas.width = size * dpr;
     canvas.height = size * dpr;
     canvas.style.width = `${size}px`;
@@ -215,7 +215,7 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
 
         ctx.beginPath();
         ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, radius - 10, currentAngle, currentAngle + sliceAngle);
+        ctx.arc(cx, cy, radius - 12, currentAngle, currentAngle + sliceAngle);
         ctx.closePath();
 
         ctx.fillStyle = seg.color;
@@ -234,12 +234,12 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
         ctx.textAlign = 'right';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 13px "Plus Jakarta Sans", sans-serif';
+        ctx.font = 'bold 14px "Plus Jakarta Sans", sans-serif';
         
         // Clip labels if too long
         let label = seg.label;
-        if (label.length > 18) label = label.substring(0, 16) + '...';
-        ctx.fillText(label, radius - 28, 0);
+        if (label.length > 24) label = label.substring(0, 22) + '...';
+        ctx.fillText(label, radius - 36, 0);
         ctx.restore();
 
         currentAngle += sliceAngle;
@@ -247,26 +247,26 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
 
       // Draw inner glowing center circle
       ctx.beginPath();
-      ctx.arc(cx, cy, 28, 0, 2 * Math.PI);
+      ctx.arc(cx, cy, 34, 0, 2 * Math.PI);
       ctx.closePath();
       ctx.fillStyle = '#0f172a';
       ctx.fill();
       ctx.strokeStyle = 'rgba(139, 92, 246, 0.8)';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 3.5;
       ctx.stroke();
 
       // Outer gold decorative border ring
       ctx.beginPath();
-      ctx.arc(cx, cy, radius - 10, 0, 2 * Math.PI);
+      ctx.arc(cx, cy, radius - 12, 0, 2 * Math.PI);
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-      ctx.lineWidth = 4;
+      ctx.lineWidth = 5;
       ctx.stroke();
 
       // Draw Indicator Needle (at 0 degrees / Right side)
       ctx.beginPath();
       ctx.moveTo(size - 2, cy);
-      ctx.lineTo(size - 22, cy - 10);
-      ctx.lineTo(size - 22, cy + 10);
+      ctx.lineTo(size - 26, cy - 12);
+      ctx.lineTo(size - 26, cy + 12);
       ctx.closePath();
       ctx.fillStyle = '#ec4899';
       ctx.fill();
@@ -345,7 +345,7 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
       if (canvas) {
         const ctx = canvas.getContext('2d');
         if (ctx) {
-          const size = 480;
+          const size = 560;
           const radius = size / 2;
           const cx = radius;
           const cy = radius;
@@ -359,7 +359,7 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
 
             ctx.beginPath();
             ctx.moveTo(cx, cy);
-            ctx.arc(cx, cy, radius - 10, currentAngle, currentAngle + sliceAngle);
+            ctx.arc(cx, cy, radius - 12, currentAngle, currentAngle + sliceAngle);
             ctx.closePath();
             ctx.fillStyle = seg.color;
             ctx.fill();
@@ -373,10 +373,10 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
             ctx.textAlign = 'right';
             ctx.textBaseline = 'middle';
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 13px "Plus Jakarta Sans", sans-serif';
+            ctx.font = 'bold 14px "Plus Jakarta Sans", sans-serif';
             let label = seg.label;
-            if (label.length > 18) label = label.substring(0, 16) + '...';
-            ctx.fillText(label, radius - 28, 0);
+            if (label.length > 24) label = label.substring(0, 22) + '...';
+            ctx.fillText(label, radius - 36, 0);
             ctx.restore();
 
             currentAngle += sliceAngle;
@@ -384,25 +384,25 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
 
           // Inner circle
           ctx.beginPath();
-          ctx.arc(cx, cy, 28, 0, 2 * Math.PI);
+          ctx.arc(cx, cy, 34, 0, 2 * Math.PI);
           ctx.fillStyle = '#0f172a';
           ctx.fill();
           ctx.strokeStyle = 'rgba(139, 92, 246, 0.8)';
-          ctx.lineWidth = 3;
+          ctx.lineWidth = 3.5;
           ctx.stroke();
 
           // Outer border
           ctx.beginPath();
-          ctx.arc(cx, cy, radius - 10, 0, 2 * Math.PI);
+          ctx.arc(cx, cy, radius - 12, 0, 2 * Math.PI);
           ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-          ctx.lineWidth = 4;
+          ctx.lineWidth = 5;
           ctx.stroke();
 
           // Needle
           ctx.beginPath();
           ctx.moveTo(size - 2, cy);
-          ctx.lineTo(size - 22, cy - 10);
-          ctx.lineTo(size - 22, cy + 10);
+          ctx.lineTo(size - 26, cy - 12);
+          ctx.lineTo(size - 26, cy + 12);
           ctx.closePath();
           ctx.fillStyle = '#ec4899';
           ctx.fill();
@@ -466,13 +466,13 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
           <div className="pulse-glow glass-panel" style={{
             position: 'absolute',
             bottom: '-10px',
-            padding: '8px 20px',
+            padding: '10px 24px',
             background: 'rgba(15, 23, 42, 0.95)',
             border: '1px solid var(--neon-cyan)',
             color: 'var(--text-primary)',
-            fontSize: '15px',
+            fontSize: '16px',
             fontWeight: 'bold',
-            borderRadius: '20px',
+            borderRadius: '24px',
           }}>
             Winner: <span style={{ color: 'var(--neon-cyan)' }}>{winnerResult}</span>
           </div>
