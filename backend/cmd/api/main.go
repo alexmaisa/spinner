@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/alexmaisa/spinner/backend/internal/api"
 	"github.com/alexmaisa/spinner/backend/internal/database"
@@ -61,6 +63,25 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(`{"status":"healthy"}`))
 	})
+
+	// Serve static files from the frontend/dist directory in production
+	fs := http.FileServer(http.Dir("./frontend/dist"))
+	mux.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// If path doesn't start with /api/, serve from static files
+		if !strings.HasPrefix(r.URL.Path, "/api/") {
+			// Check if file exists, if not serve index.html (fallback for React routing)
+			path := filepath.Join("./frontend/dist", r.URL.Path)
+			_, err := os.Stat(path)
+			if os.IsNotExist(err) {
+				http.ServeFile(w, r, "./frontend/dist/index.html")
+				return
+			}
+			fs.ServeHTTP(w, r)
+			return
+		}
+		// Otherwise return 404 for unmatched API routes
+		http.NotFound(w, r)
+	}))
 
 	// 4. Start HTTP Server with CORS
 	serverAddr := ":" + port
