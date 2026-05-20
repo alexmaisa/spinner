@@ -23,7 +23,7 @@ const Dice: React.FC<DiceProps> = ({ value, isRolling, delay }) => {
   };
 
   const rot = getFaceRotation(value);
-  
+
   // Dramatic spins on roll
   const transformStyle = isRolling
     ? `rotateX(${rot.x + 1440}deg) rotateY(${rot.y + 1440}deg) rotateZ(720deg)`
@@ -37,9 +37,9 @@ const Dice: React.FC<DiceProps> = ({ value, isRolling, delay }) => {
       display: 'inline-block',
       margin: '16px',
     }}>
-      <div 
+      <div
         ref={cubeRef}
-        className="dice-cube" 
+        className="dice-cube"
         style={{
           width: '100px',
           height: '100px',
@@ -138,7 +138,7 @@ export const DiceRoller3D: React.FC = () => {
 
     // Roll each dice
     const newValues = Array(diceCount).fill(1).map(() => Math.floor(Math.random() * 6) + 1);
-    
+
     // Stagger slightly so roll finishes dynamically
     setTimeout(() => {
       setDiceValues(newValues);
@@ -155,7 +155,7 @@ export const DiceRoller3D: React.FC = () => {
   return (
     <div className="arena-card glass-panel" style={{ gridTemplateColumns: '1fr', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
       <h3 style={{ marginBottom: '24px', background: 'linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontSize: '22px' }}>
-        3D Premium Dice Roller
+        3D Dice Roller
       </h3>
 
       {/* Dices Display Box */}
@@ -175,10 +175,10 @@ export const DiceRoller3D: React.FC = () => {
         flex: 1
       }}>
         {diceValues.map((val, i) => (
-          <Dice 
-            key={i} 
-            value={val} 
-            isRolling={isRolling} 
+          <Dice
+            key={i}
+            value={val}
+            isRolling={isRolling}
             delay={i * 150} // Staggered delays
           />
         ))}
