@@ -38,7 +38,7 @@ export const CoinFlipper3D: React.FC = () => {
       <h3 style={{ marginBottom: '8px', background: 'linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontSize: '22px' }}>
         3D Coin Flipper
       </h3>
-      <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '24px' }}>Toss a premium cybernetic coin to make a decision</p>
+      <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '24px' }}>Toss a cybernetic coin to make a decision</p>
 
       {/* Coin Play Area */}
       <div style={{
