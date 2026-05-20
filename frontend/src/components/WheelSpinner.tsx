@@ -264,14 +264,14 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
       ctx.textBaseline = 'middle';
       ctx.fillStyle = '#ffffff';
       // Dynamically compute font size based on text length to prevent overlap while maintaining proportions
-      const baseFontSize = Math.max(11, Math.round(size / 34)); // e.g. 16px for size = 550
+      const baseFontSize = Math.max(13, Math.round(size / 27)); // e.g. 20px for size = 550
       let segmentFontSize = baseFontSize;
       if (seg.label.length <= 6) {
-        segmentFontSize = Math.min(20, Math.round(baseFontSize * 1.25)); // Make short text larger
+        segmentFontSize = Math.min(26, Math.round(baseFontSize * 1.3)); // Make short text significantly larger (e.g. up to 26px)
       } else if (seg.label.length > 12) {
-        // Linearly scale down long text, floor at 9px to keep it readable
-        const scaleFactor = Math.max(0.65, 1 - (seg.label.length - 12) * 0.035);
-        segmentFontSize = Math.max(9, Math.round(baseFontSize * scaleFactor));
+        // Linearly scale down long text, floor at 12px to keep it highly readable and elegant
+        const scaleFactor = Math.max(0.6, 1 - (seg.label.length - 12) * 0.04);
+        segmentFontSize = Math.max(12, Math.round(baseFontSize * scaleFactor));
       }
       ctx.font = `bold ${segmentFontSize}px "Plus Jakarta Sans", sans-serif`;
       
@@ -585,16 +585,12 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
           <h3>Configure Options</h3>
         </div>
 
-        {/* Premium Settings Controls */}
+        {/* Premium Settings Controls (Immersive - No Border/Background) */}
         <div style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '12px',
-          padding: '14px',
-          background: 'rgba(15, 23, 42, 0.35)',
-          border: '1px solid rgba(255, 255, 255, 0.05)',
-          borderRadius: '12px',
-          marginBottom: '18px'
+          gap: '14px',
+          marginBottom: '20px'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 500 }}>Sound Effects</span>
