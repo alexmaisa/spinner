@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Play, Plus, Trash2, Volume2, VolumeX } from 'lucide-react';
+import { Play, Plus, Trash2 } from 'lucide-react';
 
 // Reusable Audio Engine to prevent resource leaks
 class AudioEngine {
@@ -109,6 +109,9 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
   const [isSpinning, setIsSpinning] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [winnerResult, setWinnerResult] = useState<string | null>(null);
+  const [winnerIndex, setWinnerIndex] = useState<number | null>(null);
+  const [removeOnSpin, setRemoveOnSpin] = useState(false);
+
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const angleRef = useRef(0);
@@ -260,12 +263,21 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
       ctx.textAlign = 'right';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = '#ffffff';
-      const fontSize = Math.max(11, Math.min(15, Math.round(size / 38)));
-      ctx.font = `bold ${fontSize}px "Plus Jakarta Sans", sans-serif`;
+      // Dynamically compute font size based on text length to prevent overlap while maintaining proportions
+      const baseFontSize = Math.max(11, Math.round(size / 34)); // e.g. 16px for size = 550
+      let segmentFontSize = baseFontSize;
+      if (seg.label.length <= 6) {
+        segmentFontSize = Math.min(20, Math.round(baseFontSize * 1.25)); // Make short text larger
+      } else if (seg.label.length > 12) {
+        // Linearly scale down long text, floor at 9px to keep it readable
+        const scaleFactor = Math.max(0.65, 1 - (seg.label.length - 12) * 0.035);
+        segmentFontSize = Math.max(9, Math.round(baseFontSize * scaleFactor));
+      }
+      ctx.font = `bold ${segmentFontSize}px "Plus Jakarta Sans", sans-serif`;
       
-      // Clip labels if too long
+      // Clip labels if extremely long to avoid center overlap
       let label = seg.label;
-      const maxLabelLength = Math.max(12, Math.min(24, Math.round(size / 22)));
+      const maxLabelLength = 32;
       if (label.length > maxLabelLength) label = label.substring(0, maxLabelLength - 2) + '...';
       ctx.fillText(label, radius - Math.max(28, size * 0.06), 0);
       ctx.restore();
@@ -291,11 +303,11 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
     ctx.lineWidth = Math.max(3, size * 0.009);
     ctx.stroke();
 
-    // Draw Indicator Needle (at 0 degrees / Right side)
+    // Draw Indicator Needle (pointing inward towards the center of the wheel)
     ctx.beginPath();
-    ctx.moveTo(size - 2, cy);
-    ctx.lineTo(size - Math.max(16, size * 0.045), cy - Math.max(8, size * 0.02));
-    ctx.lineTo(size - Math.max(16, size * 0.045), cy + Math.max(8, size * 0.02));
+    ctx.moveTo(size - Math.max(24, size * 0.06), cy); // Sharp tip pointing inward (to the left)
+    ctx.lineTo(size - 2, cy - Math.max(10, size * 0.02)); // Top-right base corner
+    ctx.lineTo(size - 2, cy + Math.max(10, size * 0.02)); // Bottom-right base corner
     ctx.closePath();
     ctx.fillStyle = '#ec4899';
     ctx.fill();
@@ -426,6 +438,7 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
         setIsSpinning(false);
         const resultLabel = segments[selectedIdx].label;
         setWinnerResult(resultLabel);
+        setWinnerIndex(selectedIdx);
 
         if (soundEnabled) {
           audio.playWin();
@@ -436,6 +449,7 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
         }
       }
     };
+
 
     requestAnimationFrame(animate);
   };
@@ -457,20 +471,109 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
         </h3>
         <canvas ref={canvasRef} />
         
-        {/* Glowing Indicator for Spin Winner */}
+        {/* Premium Winner Celebration Modal */}
         {winnerResult && (
-          <div className="pulse-glow glass-panel" style={{
-            position: 'absolute',
-            bottom: '-10px',
-            padding: '10px 24px',
-            background: 'rgba(15, 23, 42, 0.95)',
-            border: '1px solid var(--neon-cyan)',
-            color: 'var(--text-primary)',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            borderRadius: '24px',
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(8, 12, 20, 0.82)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            animation: 'backdropFade 0.25s ease-out'
           }}>
-            Winner: <span style={{ color: 'var(--neon-cyan)' }}>{winnerResult}</span>
+            <div className="glass-panel pulse-glow" style={{
+              width: '90%',
+              maxWidth: '420px',
+              padding: '36px 28px',
+              textAlign: 'center',
+              border: '2px solid var(--neon-cyan)',
+              background: 'rgba(15, 23, 42, 0.95)',
+              borderRadius: '20px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '20px',
+              animation: 'fadeIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
+            }}>
+              <div style={{
+                background: 'rgba(6, 182, 212, 0.1)',
+                border: '1px solid rgba(6, 182, 212, 0.3)',
+                color: 'var(--neon-cyan)',
+                padding: '6px 14px',
+                borderRadius: '20px',
+                fontSize: '11px',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.15em'
+              }}>
+                Spin Result
+              </div>
+              
+              <h2 style={{
+                fontSize: '32px',
+                fontWeight: 800,
+                background: 'linear-gradient(135deg, #ffffff, var(--text-secondary))',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                margin: 0
+              }}>
+                We Have a Winner!
+              </h2>
+
+              <div style={{
+                fontSize: '26px',
+                fontWeight: 800,
+                color: 'var(--neon-pink)',
+                textShadow: '0 0 12px var(--neon-pink-glow)',
+                margin: '12px 0',
+                wordBreak: 'break-word',
+                padding: '0 10px',
+                lineHeight: '1.3'
+              }}>
+                {winnerResult}
+              </div>
+
+              {removeOnSpin && (
+                <div style={{
+                  fontSize: '12px',
+                  color: 'var(--text-muted)',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  background: 'rgba(236, 72, 153, 0.05)',
+                  border: '1px solid rgba(236, 72, 153, 0.1)',
+                  marginTop: '-4px'
+                }}>
+                  This option will be removed for the next spin
+                </div>
+              )}
+
+              <button
+                className="btn btn-cyan"
+                style={{
+                  width: '100%',
+                  padding: '12px 24px',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  marginTop: '8px'
+                }}
+                onClick={() => {
+                  if (removeOnSpin && winnerIndex !== null) {
+                    handleRemoveSegment(winnerIndex);
+                  }
+                  setWinnerResult(null);
+                  setWinnerIndex(null);
+                }}
+              >
+                Awesome!
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -478,15 +581,115 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
 
       {/* Configurations panel */}
       <div className="config-pane">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
           <h3>Configure Options</h3>
-          <button
-            className="btn-remove"
-            onClick={() => setSoundEnabled(!soundEnabled)}
-            title={soundEnabled ? 'Mute Sounds' : 'Unmute Sounds'}
-          >
-            {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
-          </button>
+        </div>
+
+        {/* Premium Settings Controls */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
+          padding: '14px',
+          background: 'rgba(15, 23, 42, 0.35)',
+          border: '1px solid rgba(255, 255, 255, 0.05)',
+          borderRadius: '12px',
+          marginBottom: '18px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 500 }}>Sound Effects</span>
+            <label className="switch" style={{
+              position: 'relative',
+              display: 'inline-block',
+              width: '38px',
+              height: '20px'
+            }}>
+              <input
+                type="checkbox"
+                checked={soundEnabled}
+                onChange={(e) => setSoundEnabled(e.target.checked)}
+                style={{
+                  opacity: 0,
+                  width: 0,
+                  height: 0,
+                  position: 'absolute'
+                }}
+              />
+              <span className="slider" style={{
+                position: 'absolute',
+                cursor: 'pointer',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: soundEnabled ? 'var(--neon-cyan)' : 'rgba(255, 255, 255, 0.1)',
+                transition: '.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                borderRadius: '20px',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                boxShadow: soundEnabled ? '0 0 8px var(--neon-cyan-glow)' : 'none'
+              }}>
+                <span style={{
+                  position: 'absolute',
+                  height: '14px',
+                  width: '14px',
+                  left: soundEnabled ? '20px' : '2px',
+                  bottom: '2px',
+                  backgroundColor: '#fff',
+                  transition: '.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  borderRadius: '50%',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.4)'
+                }} />
+              </span>
+            </label>
+          </div>
+          
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 500 }}>Remove winner after spin</span>
+            <label className="switch" style={{
+              position: 'relative',
+              display: 'inline-block',
+              width: '38px',
+              height: '20px'
+            }}>
+              <input
+                type="checkbox"
+                checked={removeOnSpin}
+                onChange={(e) => setRemoveOnSpin(e.target.checked)}
+                disabled={isSpinning}
+                style={{
+                  opacity: 0,
+                  width: 0,
+                  height: 0,
+                  position: 'absolute'
+                }}
+              />
+              <span className="slider" style={{
+                position: 'absolute',
+                cursor: isSpinning ? 'not-allowed' : 'pointer',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: removeOnSpin ? 'var(--neon-purple)' : 'rgba(255, 255, 255, 0.1)',
+                transition: '.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                borderRadius: '20px',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                boxShadow: removeOnSpin ? '0 0 8px var(--neon-purple-glow)' : 'none'
+              }}>
+                <span style={{
+                  position: 'absolute',
+                  height: '14px',
+                  width: '14px',
+                  left: removeOnSpin ? '20px' : '2px',
+                  bottom: '2px',
+                  backgroundColor: '#fff',
+                  transition: '.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  borderRadius: '50%',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.4)'
+                }} />
+              </span>
+            </label>
+          </div>
         </div>
 
         {/* List of segment options */}
