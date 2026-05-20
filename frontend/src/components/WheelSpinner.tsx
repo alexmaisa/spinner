@@ -190,11 +190,13 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
     if (!ctx) return;
 
     const dpr = window.devicePixelRatio || 1;
-    const size = 360;
+    const size = 480;
     canvas.width = size * dpr;
     canvas.height = size * dpr;
     canvas.style.width = `${size}px`;
     canvas.style.height = `${size}px`;
+    canvas.style.maxWidth = '100%';
+    canvas.style.height = 'auto';
     ctx.scale(dpr, dpr);
 
     const radius = size / 2;
@@ -232,12 +234,12 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
         ctx.textAlign = 'right';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 12px "Plus Jakarta Sans", sans-serif';
+        ctx.font = 'bold 13px "Plus Jakarta Sans", sans-serif';
         
         // Clip labels if too long
         let label = seg.label;
-        if (label.length > 14) label = label.substring(0, 12) + '...';
-        ctx.fillText(label, radius - 25, 0);
+        if (label.length > 18) label = label.substring(0, 16) + '...';
+        ctx.fillText(label, radius - 28, 0);
         ctx.restore();
 
         currentAngle += sliceAngle;
@@ -245,7 +247,7 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
 
       // Draw inner glowing center circle
       ctx.beginPath();
-      ctx.arc(cx, cy, 24, 0, 2 * Math.PI);
+      ctx.arc(cx, cy, 28, 0, 2 * Math.PI);
       ctx.closePath();
       ctx.fillStyle = '#0f172a';
       ctx.fill();
@@ -343,7 +345,7 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
       if (canvas) {
         const ctx = canvas.getContext('2d');
         if (ctx) {
-          const size = 360;
+          const size = 480;
           const radius = size / 2;
           const cx = radius;
           const cy = radius;
@@ -371,10 +373,10 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
             ctx.textAlign = 'right';
             ctx.textBaseline = 'middle';
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 12px "Plus Jakarta Sans", sans-serif';
+            ctx.font = 'bold 13px "Plus Jakarta Sans", sans-serif';
             let label = seg.label;
-            if (label.length > 14) label = label.substring(0, 12) + '...';
-            ctx.fillText(label, radius - 25, 0);
+            if (label.length > 18) label = label.substring(0, 16) + '...';
+            ctx.fillText(label, radius - 28, 0);
             ctx.restore();
 
             currentAngle += sliceAngle;
@@ -382,7 +384,7 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
 
           // Inner circle
           ctx.beginPath();
-          ctx.arc(cx, cy, 24, 0, 2 * Math.PI);
+          ctx.arc(cx, cy, 28, 0, 2 * Math.PI);
           ctx.fillStyle = '#0f172a';
           ctx.fill();
           ctx.strokeStyle = 'rgba(139, 92, 246, 0.8)';
