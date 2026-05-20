@@ -15,8 +15,8 @@ type SpinnerConfig struct {
 	ID        string    `json:"id"`
 	UserID    *int64    `json:"user_id,omitempty"` // Nullable for anonymous sharing
 	Title     string    `json:"title"`
-	Type      string    `json:"type"`       // "wheel", "dice", "coin", "number", "list"
-	Data      string    `json:"data"`       // JSON payload containing configuration specifics
+	Type      string    `json:"type"` // "wheel", "dice", "coin", "number", "list"
+	Data      string    `json:"data"` // JSON payload containing configuration specifics
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -51,7 +51,7 @@ type AuthResponse struct {
 
 // SpinRequest is the payload for triggering a server-side secure spin.
 type SpinRequest struct {
-	Type    string    `json:"type"` // "wheel", "dice", "coin", "number", "list"
+	Type    string    `json:"type"`              // "wheel", "dice", "coin", "number", "list"
 	Weights []float64 `json:"weights,omitempty"` // For weighted wheels
 	Min     *int64    `json:"min,omitempty"`     // For random number range
 	Max     *int64    `json:"max,omitempty"`     // For random number range

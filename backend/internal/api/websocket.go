@@ -23,11 +23,11 @@ var upgrader = websocket.Upgrader{
 
 // Room represents a live synchronized spin session.
 type Room struct {
-	ID        string
-	Config    interface{} // Current active spinner configuration
-	HostConn  *websocket.Conn
-	Clients   map[*websocket.Conn]bool
-	Mutex     sync.RWMutex
+	ID       string
+	Config   interface{} // Current active spinner configuration
+	HostConn *websocket.Conn
+	Clients  map[*websocket.Conn]bool
+	Mutex    sync.RWMutex
 }
 
 // RoomManager orchestrates active co-spinning rooms.
