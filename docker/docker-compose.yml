@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  spinner:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: spinner-app
+    ports:
+      - "8080:8080"
+    volumes:
+      - spinner-data:/app/data
+    restart: always
+
+volumes:
+  spinner-data:
