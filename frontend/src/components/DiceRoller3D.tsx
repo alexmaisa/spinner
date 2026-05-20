@@ -31,9 +31,9 @@ const Dice: React.FC<DiceProps> = ({ value, isRolling, delay }) => {
 
   return (
     <div className="dice-wrapper" style={{
-      perspective: '600px',
-      width: '100px',
-      height: '100px',
+      perspective: '800px',
+      width: '130px',
+      height: '130px',
       display: 'inline-block',
       margin: '16px',
     }}>
@@ -41,78 +41,78 @@ const Dice: React.FC<DiceProps> = ({ value, isRolling, delay }) => {
         ref={cubeRef}
         className="dice-cube" 
         style={{
-          width: '80px',
-          height: '80px',
+          width: '100px',
+          height: '100px',
           position: 'relative',
           transformStyle: 'preserve-3d',
           transform: transformStyle,
           transition: isRolling ? 'transform 2s cubic-bezier(0.25, 1, 0.5, 1)' : 'transform 0.6s ease',
           transitionDelay: isRolling ? `${delay}ms` : '0ms',
-          margin: '10px auto',
+          margin: '15px auto',
         }}
       >
         {/* Face 1 */}
         <div className="dice-face face-1" style={{
-          position: 'absolute', width: '80px', height: '80px', background: '#1e293b', border: '2px solid rgba(255, 255, 255, 0.15)', borderRadius: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', transform: 'rotateY(0deg) translateZ(40px)', boxShadow: 'inset 0 0 15px rgba(0,0,0,0.5)'
+          position: 'absolute', width: '100px', height: '100px', background: '#1e293b', border: '2px solid rgba(255, 255, 255, 0.15)', borderRadius: '16px', display: 'flex', justifyContent: 'center', alignItems: 'center', transform: 'rotateY(0deg) translateZ(50px)', boxShadow: 'inset 0 0 20px rgba(0,0,0,0.6)'
         }}>
-          <div className="dot" style={{ width: '12px', height: '12px', borderRadius: '50%', background: 'var(--neon-purple)', filter: 'drop-shadow(0 0 3px var(--neon-purple))' }} />
+          <div className="dot" style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'var(--neon-purple)', filter: 'drop-shadow(0 0 5px var(--neon-purple))' }} />
         </div>
 
         {/* Face 6 */}
         <div className="dice-face face-6" style={{
-          position: 'absolute', width: '80px', height: '80px', background: '#1e293b', border: '2px solid rgba(255, 255, 255, 0.15)', borderRadius: '12px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', padding: '10px', alignContent: 'space-between', transform: 'rotateY(180deg) translateZ(40px)', boxShadow: 'inset 0 0 15px rgba(0,0,0,0.5)'
+          position: 'absolute', width: '100px', height: '100px', background: '#1e293b', border: '2px solid rgba(255, 255, 255, 0.15)', borderRadius: '16px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', padding: '14px', alignContent: 'space-between', transform: 'rotateY(180deg) translateZ(50px)', boxShadow: 'inset 0 0 20px rgba(0,0,0,0.6)'
         }}>
-          <div className="dot" style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fff' }} />
+          <div className="dot" style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#fff' }} />
           <div></div>
-          <div className="dot" style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fff' }} />
-          <div className="dot" style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fff' }} />
+          <div className="dot" style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#fff' }} />
+          <div className="dot" style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#fff' }} />
           <div></div>
-          <div className="dot" style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fff' }} />
-          <div className="dot" style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fff' }} />
+          <div className="dot" style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#fff' }} />
+          <div className="dot" style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#fff' }} />
           <div></div>
-          <div className="dot" style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fff' }} />
+          <div className="dot" style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#fff' }} />
         </div>
 
         {/* Face 5 */}
         <div className="dice-face face-5" style={{
-          position: 'absolute', width: '80px', height: '80px', background: '#1e293b', border: '2px solid rgba(255, 255, 255, 0.15)', borderRadius: '12px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', padding: '10px', alignItems: 'center', transform: 'rotateX(-90deg) translateZ(40px)', boxShadow: 'inset 0 0 15px rgba(0,0,0,0.5)'
+          position: 'absolute', width: '100px', height: '100px', background: '#1e293b', border: '2px solid rgba(255, 255, 255, 0.15)', borderRadius: '16px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', padding: '14px', alignItems: 'center', transform: 'rotateX(-90deg) translateZ(50px)', boxShadow: 'inset 0 0 20px rgba(0,0,0,0.6)'
         }}>
-          <div className="dot" style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fff' }} />
+          <div className="dot" style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#fff' }} />
           <div></div>
-          <div className="dot" style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fff' }} />
+          <div className="dot" style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#fff' }} />
           <div></div>
-          <div className="dot" style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fff' }} />
+          <div className="dot" style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#fff' }} />
           <div></div>
-          <div className="dot" style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fff' }} />
+          <div className="dot" style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#fff' }} />
           <div></div>
-          <div className="dot" style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fff' }} />
+          <div className="dot" style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#fff' }} />
         </div>
 
         {/* Face 2 */}
         <div className="dice-face face-2" style={{
-          position: 'absolute', width: '80px', height: '80px', background: '#1e293b', border: '2px solid rgba(255, 255, 255, 0.15)', borderRadius: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '10px', transform: 'rotateX(90deg) translateZ(40px)', boxShadow: 'inset 0 0 15px rgba(0,0,0,0.5)'
+          position: 'absolute', width: '100px', height: '100px', background: '#1e293b', border: '2px solid rgba(255, 255, 255, 0.15)', borderRadius: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '14px', transform: 'rotateX(90deg) translateZ(50px)', boxShadow: 'inset 0 0 20px rgba(0,0,0,0.6)'
         }}>
-          <div className="dot" style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fff', alignSelf: 'flex-start' }} />
-          <div className="dot" style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fff', alignSelf: 'flex-end' }} />
+          <div className="dot" style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#fff', alignSelf: 'flex-start' }} />
+          <div className="dot" style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#fff', alignSelf: 'flex-end' }} />
         </div>
 
         {/* Face 3 */}
         <div className="dice-face face-3" style={{
-          position: 'absolute', width: '80px', height: '80px', background: '#1e293b', border: '2px solid rgba(255, 255, 255, 0.15)', borderRadius: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '10px', transform: 'rotateY(90deg) translateZ(40px)', boxShadow: 'inset 0 0 15px rgba(0,0,0,0.5)'
+          position: 'absolute', width: '100px', height: '100px', background: '#1e293b', border: '2px solid rgba(255, 255, 255, 0.15)', borderRadius: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '14px', transform: 'rotateY(90deg) translateZ(50px)', boxShadow: 'inset 0 0 20px rgba(0,0,0,0.6)'
         }}>
-          <div className="dot" style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fff', alignSelf: 'flex-start' }} />
-          <div className="dot" style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fff', alignSelf: 'center' }} />
-          <div className="dot" style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fff', alignSelf: 'flex-end' }} />
+          <div className="dot" style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#fff', alignSelf: 'flex-start' }} />
+          <div className="dot" style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#fff', alignSelf: 'center' }} />
+          <div className="dot" style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#fff', alignSelf: 'flex-end' }} />
         </div>
 
         {/* Face 4 */}
         <div className="dice-face face-4" style={{
-          position: 'absolute', width: '80px', height: '80px', background: '#1e293b', border: '2px solid rgba(255, 255, 255, 0.15)', borderRadius: '12px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', padding: '12px', alignContent: 'space-between', transform: 'rotateY(-90deg) translateZ(40px)', boxShadow: 'inset 0 0 15px rgba(0,0,0,0.5)'
+          position: 'absolute', width: '100px', height: '100px', background: '#1e293b', border: '2px solid rgba(255, 255, 255, 0.15)', borderRadius: '16px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', padding: '16px', alignContent: 'space-between', transform: 'rotateY(-90deg) translateZ(50px)', boxShadow: 'inset 0 0 20px rgba(0,0,0,0.6)'
         }}>
-          <div className="dot" style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fff' }} />
-          <div className="dot" style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fff' }} />
-          <div className="dot" style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fff' }} />
-          <div className="dot" style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fff' }} />
+          <div className="dot" style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#fff' }} />
+          <div className="dot" style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#fff' }} />
+          <div className="dot" style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#fff' }} />
+          <div className="dot" style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#fff' }} />
         </div>
       </div>
     </div>
@@ -153,25 +153,26 @@ export const DiceRoller3D: React.FC = () => {
   };
 
   return (
-    <div className="arena-card glass-panel" style={{ gridTemplateColumns: '1fr', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-      <h3 style={{ marginBottom: '24px', background: 'linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontSize: '20px' }}>
+    <div className="arena-card glass-panel" style={{ gridTemplateColumns: '1fr', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
+      <h3 style={{ marginBottom: '24px', background: 'linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontSize: '22px' }}>
         3D Premium Dice Roller
       </h3>
 
       {/* Dices Display Box */}
       <div style={{
-        minHeight: '160px',
+        minHeight: '260px',
         display: 'flex',
         flexWrap: 'wrap',
         justifyContent: 'center',
         alignItems: 'center',
         background: 'rgba(255, 255, 255, 0.01)',
         border: '1px dashed rgba(255, 255, 255, 0.05)',
-        borderRadius: '16px',
+        borderRadius: '24px',
         width: '100%',
-        maxWidth: '600px',
-        padding: '20px',
-        marginBottom: '32px'
+        maxWidth: '800px',
+        padding: '32px',
+        marginBottom: '32px',
+        flex: 1
       }}>
         {diceValues.map((val, i) => (
           <Dice 
@@ -205,7 +206,7 @@ export const DiceRoller3D: React.FC = () => {
         flexDirection: 'column',
         gap: '20px',
         width: '100%',
-        maxWidth: '400px'
+        maxWidth: '500px'
       }}>
         {/* Count Selector */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
