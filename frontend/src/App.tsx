@@ -34,11 +34,22 @@ const WS_BASE = window.location.origin.includes('localhost') || window.location.
   : (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host;
 
 export default function App() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 992);
+  
+  useEffect(() => {
+    const handleWindowResize = () => {
+      setIsMobile(window.innerWidth <= 992);
+    };
+    window.addEventListener('resize', handleWindowResize);
+    return () => window.removeEventListener('resize', handleWindowResize);
+  }, []);
+
   // Navigation & Authentication states
   const [activeTab, setActiveTab] = useState<'wheel' | 'dice' | 'coin' | 'extra'>('wheel');
   const [token, setToken] = useState<string | null>(localStorage.getItem('spinner_token'));
   const [username, setUsername] = useState<string | null>(localStorage.getItem('spinner_username'));
   const [showAuthModal, setShowAuthModal] = useState(false);
+
 
   // Spinner Segment state
   const [wheelSegments, setWheelSegments] = useState<WheelSegment[]>([
@@ -592,7 +603,7 @@ export default function App() {
         {/* Playing Arena Pane */}
         <main className="arena">
           {activeTab === 'wheel' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%', maxWidth: '900px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%', maxWidth: '1280px', height: isMobile ? 'auto' : '100%', minHeight: 0 }}>
               {/* Multiplayer Banner Header */}
               {isMultiplayerMode && (
                 <div className="pulse-glow glass-panel" style={{

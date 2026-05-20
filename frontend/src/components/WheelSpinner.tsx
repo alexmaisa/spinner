@@ -181,6 +181,129 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
     setSegments(updated);
   };
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 992);
+  const [wheelSize, setWheelSize] = useState(560);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const wheelSizeRef = useRef(560);
+
+  useEffect(() => {
+    const handleWindowResize = () => {
+      setIsMobile(window.innerWidth <= 992);
+    };
+    window.addEventListener('resize', handleWindowResize);
+    return () => window.removeEventListener('resize', handleWindowResize);
+  }, []);
+
+  useEffect(() => {
+    wheelSizeRef.current = wheelSize;
+  }, [wheelSize]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleResize = () => {
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      
+      // Symmetrical 32px padding on all sides (total 64px)
+      // Account for 50px of title height inside visualizer pane
+      const padding = 64;
+      const titleHeight = 50;
+      const newSize = Math.max(280, Math.min(width, height - titleHeight) - padding);
+      setWheelSize(newSize);
+    };
+
+    handleResize();
+
+    const observer = new ResizeObserver(handleResize);
+    observer.observe(container);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+
+  const drawWheelFrame = (ctx: CanvasRenderingContext2D, size: number, angle: number) => {
+    const radius = size / 2;
+    const cx = radius;
+    const cy = radius;
+    
+    ctx.clearRect(0, 0, size, size);
+
+    const totalWeight = segments.reduce((sum, s) => sum + s.weight, 0);
+    let currentAngle = angle;
+
+    // Draw segments
+    segments.forEach((seg) => {
+      const sliceAngle = (seg.weight / totalWeight) * 2 * Math.PI;
+
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, radius - 12, currentAngle, currentAngle + sliceAngle);
+      ctx.closePath();
+
+      ctx.fillStyle = seg.color;
+      ctx.fill();
+
+      // Stroke segment
+      ctx.strokeStyle = 'rgba(8, 12, 20, 0.4)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Draw text
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(currentAngle + sliceAngle / 2);
+      
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#ffffff';
+      const fontSize = Math.max(11, Math.min(15, Math.round(size / 38)));
+      ctx.font = `bold ${fontSize}px "Plus Jakarta Sans", sans-serif`;
+      
+      // Clip labels if too long
+      let label = seg.label;
+      const maxLabelLength = Math.max(12, Math.min(24, Math.round(size / 22)));
+      if (label.length > maxLabelLength) label = label.substring(0, maxLabelLength - 2) + '...';
+      ctx.fillText(label, radius - Math.max(28, size * 0.06), 0);
+      ctx.restore();
+
+      currentAngle += sliceAngle;
+    });
+
+    // Draw inner glowing center circle
+    ctx.beginPath();
+    const innerRadius = Math.max(24, Math.min(36, size * 0.06));
+    ctx.arc(cx, cy, innerRadius, 0, 2 * Math.PI);
+    ctx.closePath();
+    ctx.fillStyle = '#0f172a';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(139, 92, 246, 0.8)';
+    ctx.lineWidth = Math.max(2, size * 0.006);
+    ctx.stroke();
+
+    // Outer gold decorative border ring
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius - 12, 0, 2 * Math.PI);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+    ctx.lineWidth = Math.max(3, size * 0.009);
+    ctx.stroke();
+
+    // Draw Indicator Needle (at 0 degrees / Right side)
+    ctx.beginPath();
+    ctx.moveTo(size - 2, cy);
+    ctx.lineTo(size - Math.max(16, size * 0.045), cy - Math.max(8, size * 0.02));
+    ctx.lineTo(size - Math.max(16, size * 0.045), cy + Math.max(8, size * 0.02));
+    ctx.closePath();
+    ctx.fillStyle = '#ec4899';
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  };
+
   // Render the Wheel on Canvas
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -190,7 +313,7 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
     if (!ctx) return;
 
     const dpr = window.devicePixelRatio || 1;
-    const size = 560;
+    const size = wheelSize;
     canvas.width = size * dpr;
     canvas.height = size * dpr;
     canvas.style.width = `${size}px`;
@@ -199,84 +322,8 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
     canvas.style.height = 'auto';
     ctx.scale(dpr, dpr);
 
-    const radius = size / 2;
-    const cx = radius;
-    const cy = radius;
-
-    const drawWheel = () => {
-      ctx.clearRect(0, 0, size, size);
-
-      const totalWeight = segments.reduce((sum, s) => sum + s.weight, 0);
-      let currentAngle = angleRef.current;
-
-      // Draw segments
-      segments.forEach((seg) => {
-        const sliceAngle = (seg.weight / totalWeight) * 2 * Math.PI;
-
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, radius - 12, currentAngle, currentAngle + sliceAngle);
-        ctx.closePath();
-
-        ctx.fillStyle = seg.color;
-        ctx.fill();
-
-        // Stroke segment
-        ctx.strokeStyle = 'rgba(8, 12, 20, 0.4)';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        // Draw text
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.rotate(currentAngle + sliceAngle / 2);
-        
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 14px "Plus Jakarta Sans", sans-serif';
-        
-        // Clip labels if too long
-        let label = seg.label;
-        if (label.length > 24) label = label.substring(0, 22) + '...';
-        ctx.fillText(label, radius - 36, 0);
-        ctx.restore();
-
-        currentAngle += sliceAngle;
-      });
-
-      // Draw inner glowing center circle
-      ctx.beginPath();
-      ctx.arc(cx, cy, 34, 0, 2 * Math.PI);
-      ctx.closePath();
-      ctx.fillStyle = '#0f172a';
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(139, 92, 246, 0.8)';
-      ctx.lineWidth = 3.5;
-      ctx.stroke();
-
-      // Outer gold decorative border ring
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius - 12, 0, 2 * Math.PI);
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-      ctx.lineWidth = 5;
-      ctx.stroke();
-
-      // Draw Indicator Needle (at 0 degrees / Right side)
-      ctx.beginPath();
-      ctx.moveTo(size - 2, cy);
-      ctx.lineTo(size - 26, cy - 12);
-      ctx.lineTo(size - 26, cy + 12);
-      ctx.closePath();
-      ctx.fillStyle = '#ec4899';
-      ctx.fill();
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-    };
-
-    drawWheel();
-  }, [segments]);
+    drawWheelFrame(ctx, size, angleRef.current);
+  }, [segments, wheelSize]);
 
   // Decoupled Physics Spin Loop
   const spin = () => {
@@ -345,70 +392,8 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
       if (canvas) {
         const ctx = canvas.getContext('2d');
         if (ctx) {
-          const size = 560;
-          const radius = size / 2;
-          const cx = radius;
-          const cy = radius;
-          ctx.clearRect(0, 0, size, size);
-          
-          let currentAngle = angleRef.current;
-
-          // Redraw everything
-          segments.forEach((seg) => {
-            const sliceAngle = (seg.weight / totalWeight) * 2 * Math.PI;
-
-            ctx.beginPath();
-            ctx.moveTo(cx, cy);
-            ctx.arc(cx, cy, radius - 12, currentAngle, currentAngle + sliceAngle);
-            ctx.closePath();
-            ctx.fillStyle = seg.color;
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(8, 12, 20, 0.4)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            ctx.save();
-            ctx.translate(cx, cy);
-            ctx.rotate(currentAngle + sliceAngle / 2);
-            ctx.textAlign = 'right';
-            ctx.textBaseline = 'middle';
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 14px "Plus Jakarta Sans", sans-serif';
-            let label = seg.label;
-            if (label.length > 24) label = label.substring(0, 22) + '...';
-            ctx.fillText(label, radius - 36, 0);
-            ctx.restore();
-
-            currentAngle += sliceAngle;
-          });
-
-          // Inner circle
-          ctx.beginPath();
-          ctx.arc(cx, cy, 34, 0, 2 * Math.PI);
-          ctx.fillStyle = '#0f172a';
-          ctx.fill();
-          ctx.strokeStyle = 'rgba(139, 92, 246, 0.8)';
-          ctx.lineWidth = 3.5;
-          ctx.stroke();
-
-          // Outer border
-          ctx.beginPath();
-          ctx.arc(cx, cy, radius - 12, 0, 2 * Math.PI);
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-          ctx.lineWidth = 5;
-          ctx.stroke();
-
-          // Needle
-          ctx.beginPath();
-          ctx.moveTo(size - 2, cy);
-          ctx.lineTo(size - 26, cy - 12);
-          ctx.lineTo(size - 26, cy + 12);
-          ctx.closePath();
-          ctx.fillStyle = '#ec4899';
-          ctx.fill();
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 1.5;
-          ctx.stroke();
+          const size = wheelSizeRef.current;
+          drawWheelFrame(ctx, size, angleRef.current);
         }
       }
 
@@ -456,9 +441,20 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
   };
 
   return (
-    <div className="arena-card glass-panel">
+    <div className="arena-card glass-panel" style={isMobile ? { width: '100%' } : { height: '100%', width: '100%', minHeight: 0, flex: 1 }}>
       {/* Visual Canvas Pane */}
-      <div className="visualizer-pane">
+      <div ref={containerRef} className="visualizer-pane">
+        <h3 style={{
+          marginBottom: '20px',
+          background: 'linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          fontSize: '22px',
+          fontWeight: 'bold',
+          textAlign: 'center'
+        }}>
+          3D Wheel Spinner
+        </h3>
         <canvas ref={canvasRef} />
         
         {/* Glowing Indicator for Spin Winner */}
@@ -478,6 +474,7 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
           </div>
         )}
       </div>
+
 
       {/* Configurations panel */}
       <div className="config-pane">
