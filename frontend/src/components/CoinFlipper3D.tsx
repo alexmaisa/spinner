@@ -34,16 +34,16 @@ export const CoinFlipper3D: React.FC = () => {
     : (result === 'Tails' ? 180 : 0);
 
   return (
-    <div className="arena-card glass-panel" style={{ gridTemplateColumns: '1fr', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-      <h3 style={{ marginBottom: '8px', background: 'linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontSize: '20px' }}>
+    <div className="arena-card glass-panel" style={{ gridTemplateColumns: '1fr', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
+      <h3 style={{ marginBottom: '8px', background: 'linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontSize: '22px' }}>
         3D Premium Coin Flipper
       </h3>
-      <p style={{ color: 'var(--text-secondary)', fontSize: '13px', marginBottom: '32px' }}>Toss a premium cybernetic coin to make a decision</p>
+      <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '24px' }}>Toss a premium cybernetic coin to make a decision</p>
 
       {/* Coin Play Area */}
       <div style={{
-        perspective: '1000px',
-        height: '240px',
+        perspective: '1200px',
+        height: '320px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -54,8 +54,8 @@ export const CoinFlipper3D: React.FC = () => {
         <div 
           className={`coin ${isFlipping ? 'flipping-toss' : ''}`}
           style={{
-            width: '130px',
-            height: '130px',
+            width: '180px',
+            height: '180px',
             position: 'relative',
             transformStyle: 'preserve-3d',
             transform: `rotateY(${rotationY}deg)`,
@@ -72,16 +72,16 @@ export const CoinFlipper3D: React.FC = () => {
             backfaceVisibility: 'hidden',
             borderRadius: '50%',
             background: 'linear-gradient(135deg, #1e293b, #0f172a)',
-            border: '4px solid var(--neon-cyan)',
-            boxShadow: '0 0 20px rgba(6, 182, 212, 0.4), inset 0 0 15px rgba(6, 182, 212, 0.3)',
+            border: '5px solid var(--neon-cyan)',
+            boxShadow: '0 0 30px rgba(6, 182, 212, 0.5), inset 0 0 20px rgba(6, 182, 212, 0.4)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
             transform: 'rotateY(0deg)',
           }}>
-            <span style={{ fontSize: '48px', filter: 'drop-shadow(0 0 8px var(--neon-cyan))' }}>🪙</span>
-            <span style={{ fontSize: '12px', fontWeight: '800', color: 'var(--neon-cyan)', letterSpacing: '0.15em', marginTop: '4px' }}>HEADS</span>
+            <span style={{ fontSize: '72px', filter: 'drop-shadow(0 0 10px var(--neon-cyan))' }}>🪙</span>
+            <span style={{ fontSize: '15px', fontWeight: '800', color: 'var(--neon-cyan)', letterSpacing: '0.15em', marginTop: '6px' }}>HEADS</span>
           </div>
 
           {/* Back Face (Tails) */}
@@ -92,16 +92,16 @@ export const CoinFlipper3D: React.FC = () => {
             backfaceVisibility: 'hidden',
             borderRadius: '50%',
             background: 'linear-gradient(135deg, #1e293b, #0f172a)',
-            border: '4px solid var(--neon-pink)',
-            boxShadow: '0 0 20px rgba(236, 72, 153, 0.4), inset 0 0 15px rgba(236, 72, 153, 0.3)',
+            border: '5px solid var(--neon-pink)',
+            boxShadow: '0 0 30px rgba(236, 72, 153, 0.5), inset 0 0 20px rgba(236, 72, 153, 0.4)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
             transform: 'rotateY(180deg)',
           }}>
-            <span style={{ fontSize: '48px', filter: 'drop-shadow(0 0 8px var(--neon-pink))' }}>💎</span>
-            <span style={{ fontSize: '12px', fontWeight: '800', color: 'var(--neon-pink)', letterSpacing: '0.15em', marginTop: '4px' }}>TAILS</span>
+            <span style={{ fontSize: '72px', filter: 'drop-shadow(0 0 10px var(--neon-pink))' }}>💎</span>
+            <span style={{ fontSize: '15px', fontWeight: '800', color: 'var(--neon-pink)', letterSpacing: '0.15em', marginTop: '6px' }}>TAILS</span>
           </div>
         </div>
       </div>
@@ -110,7 +110,7 @@ export const CoinFlipper3D: React.FC = () => {
       <style>{`
         @keyframes toss-up {
           0% { transform: translateY(0); }
-          50% { transform: translateY(-100px); }
+          50% { transform: translateY(-130px); }
           100% { transform: translateY(0); }
         }
         .flipping-toss {
@@ -121,23 +121,23 @@ export const CoinFlipper3D: React.FC = () => {
       {/* Result Indicator */}
       {result && !isFlipping && (
         <div className="pulse-glow glass-panel floating" style={{
-          padding: '10px 28px',
+          padding: '12px 32px',
           background: 'rgba(15, 23, 42, 0.95)',
           border: `1px solid ${result === 'Heads' ? 'var(--neon-cyan)' : 'var(--neon-pink)'}`,
           color: 'var(--text-primary)',
-          fontSize: '16px',
+          fontSize: '18px',
           fontWeight: 'bold',
           borderRadius: '25px',
           marginBottom: '28px',
         }}>
-          Outcome: <span style={{ color: result === 'Heads' ? 'var(--neon-cyan)' : 'var(--neon-pink)', fontSize: '20px' }}>{result}</span>
+          Outcome: <span style={{ color: result === 'Heads' ? 'var(--neon-cyan)' : 'var(--neon-pink)', fontSize: '22px' }}>{result}</span>
         </div>
       )}
 
       {/* Stats Tracker & Controls */}
       <div style={{
         width: '100%',
-        maxWidth: '400px',
+        maxWidth: '500px',
         display: 'flex',
         flexDirection: 'column',
         gap: '20px',
@@ -146,23 +146,23 @@ export const CoinFlipper3D: React.FC = () => {
         <div className="glass-panel" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(3, 1fr)',
-          padding: '12px',
-          borderRadius: '10px',
+          padding: '14px',
+          borderRadius: '12px',
           textAlign: 'center',
           background: 'rgba(255, 255, 255, 0.01)',
-          fontSize: '13px',
+          fontSize: '14px',
         }}>
           <div>
             <div style={{ color: 'var(--text-secondary)' }}>Heads</div>
-            <div style={{ fontWeight: 'bold', color: 'var(--neon-cyan)' }}>{stats.heads}</div>
+            <div style={{ fontWeight: 'bold', color: 'var(--neon-cyan)', fontSize: '16px' }}>{stats.heads}</div>
           </div>
           <div style={{ borderLeft: '1px solid var(--border-color)', borderRight: '1px solid var(--border-color)' }}>
             <div style={{ color: 'var(--text-secondary)' }}>Tails</div>
-            <div style={{ fontWeight: 'bold', color: 'var(--neon-pink)' }}>{stats.tails}</div>
+            <div style={{ fontWeight: 'bold', color: 'var(--neon-pink)', fontSize: '16px' }}>{stats.tails}</div>
           </div>
           <div>
             <div style={{ color: 'var(--text-secondary)' }}>Total</div>
-            <div style={{ fontWeight: 'bold' }}>{stats.total}</div>
+            <div style={{ fontWeight: 'bold', fontSize: '16px' }}>{stats.total}</div>
           </div>
         </div>
 
