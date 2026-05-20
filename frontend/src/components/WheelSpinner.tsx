@@ -551,17 +551,19 @@ export const WheelSpinner: React.FC<WheelSpinnerProps> = ({
         )}
 
         {/* Spin trigger buttons */}
-        <div style={{ marginTop: 'auto', paddingTop: '16px' }}>
-          <button
-            className="btn btn-primary"
-            style={{ width: '100%', gap: '10px', fontSize: '15px', padding: '14px 20px' }}
-            onClick={spin}
-            disabled={isSpinning}
-          >
-            <Play size={20} fill="#fff" />
-            {isSpinning ? 'Spinning...' : 'Spin the Wheel!'}
-          </button>
-        </div>
+        {!isMultiplayerMode && (
+          <div style={{ marginTop: 'auto', paddingTop: '16px' }}>
+            <button
+              className="btn btn-primary"
+              style={{ width: '100%', gap: '10px', fontSize: '15px', padding: '14px 20px' }}
+              onClick={spin}
+              disabled={isSpinning}
+            >
+              <Play size={20} fill="#fff" />
+              {isSpinning ? 'Spinning...' : 'Spin the Wheel!'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
