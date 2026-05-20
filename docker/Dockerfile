@@ -1,5 +1,5 @@
 # Stage 1: Build React Frontend
-FROM node:20-alpine AS frontend-builder
+FROM node:22-alpine AS frontend-builder
 WORKDIR /app
 
 # Install pnpm
@@ -19,7 +19,7 @@ COPY frontend ./frontend
 RUN pnpm --filter frontend build
 
 # Stage 2: Build Golang Backend
-FROM golang:1.22-alpine AS backend-builder
+FROM golang:1.26-alpine AS backend-builder
 WORKDIR /app
 
 # Copy backend dependencies configuration
