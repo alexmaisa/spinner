@@ -32,9 +32,10 @@ func LoadConfig() *Config {
 // SendMagicLink delivers a magic login link email to the specified address.
 func SendMagicLink(cfg *Config, toEmail, magicToken, baseURL string) error {
 	verifyURL := fmt.Sprintf("%s/api/auth/verify?token=%s", strings.TrimRight(baseURL, "/"), magicToken)
+	logoURL := fmt.Sprintf("%s/logo.webp", strings.TrimRight(baseURL, "/"))
 
 	subject := "Sign in to Spinner"
-	htmlBody := buildMagicLinkHTML(verifyURL)
+	htmlBody := buildMagicLinkHTML(verifyURL, logoURL)
 
 	// Parse SMTP sender address to isolate the bare email address and the display name.
 	// This prevents syntax errors (e.g. Gmail SMTP 555 5.5.2) when using formatted From fields.
@@ -80,7 +81,7 @@ func SendMagicLink(cfg *Config, toEmail, magicToken, baseURL string) error {
 }
 
 // buildMagicLinkHTML constructs a styled HTML email body for the magic login link.
-func buildMagicLinkHTML(verifyURL string) string {
+func buildMagicLinkHTML(verifyURL, logoURL string) string {
 	return fmt.Sprintf(`<!DOCTYPE html>
 <html>
 <head>
@@ -94,7 +95,16 @@ func buildMagicLinkHTML(verifyURL string) string {
         <table width="480" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg, rgba(15,20,35,0.95), rgba(20,28,50,0.95)); border:1px solid rgba(139,92,246,0.3); border-radius:16px; padding:40px;">
           <tr>
             <td align="center" style="padding-bottom:24px;">
-              <span style="font-size:28px; font-weight:800; background:linear-gradient(135deg, #22d3ee, #8b5cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">✨ SPINNER</span>
+              <table cellpadding="0" cellspacing="0" border="0" style="display:inline-block; vertical-align:middle;">
+                <tr>
+                  <td style="vertical-align:middle; padding-right:10px;">
+                    <img src="%s" alt="Spinner Logo" width="36" height="36" style="display:block; border-radius:8px;" />
+                  </td>
+                  <td style="vertical-align:middle;">
+                    <span style="font-size:28px; font-weight:800; background:linear-gradient(135deg, #22d3ee, #8b5cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">SPINNER</span>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
           <tr>
@@ -135,7 +145,7 @@ func buildMagicLinkHTML(verifyURL string) string {
     </tr>
   </table>
 </body>
-</html>`, verifyURL)
+</html>`, logoURL, verifyURL)
 }
 
 func getEnv(key, fallback string) string {
