@@ -315,7 +315,7 @@ export const SlotMachine: React.FC = () => {
 
           <button className="btn btn-primary" style={{ padding: '14px 20px', gap: '8px' }} onClick={spinReels} disabled={isSpinning}>
             <Play size={16} fill="#fff" />
-            {isSpinning ? 'Rolling Reels...' : 'Pull tuas! / Spin!'}
+            {isSpinning ? 'Rolling Reels...' : 'Pull Lever!'}
           </button>
         </div>
       </div>
