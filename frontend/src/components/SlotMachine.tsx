@@ -120,11 +120,13 @@ export const SlotMachine: React.FC = () => {
 
         {/* Slot Machine Chassis Layout */}
         <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '24px',
           position: 'relative',
-          marginBottom: '20px'
+          width: '320px',
+          height: '190px',
+          marginBottom: '20px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
         }}>
           {/* Main Slots Box */}
           <div className="glass-panel" style={{
@@ -136,8 +138,8 @@ export const SlotMachine: React.FC = () => {
             display: 'flex',
             gap: '16px',
             position: 'relative',
-            width: '320px',
-            height: '190px',
+            width: '100%',
+            height: '100%',
             alignItems: 'center',
             justifyContent: 'center',
             boxSizing: 'border-box',
@@ -220,11 +222,14 @@ export const SlotMachine: React.FC = () => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            position: 'relative',
+            position: 'absolute',
+            left: 'calc(100% + 16px)',
+            bottom: '24px',
             cursor: 'pointer',
             height: '140px',
             width: '28px',
-            perspective: '200px'
+            perspective: '200px',
+            zIndex: 20
           }} onClick={spinReels}>
             {/* Lever Base */}
             <div className="glass-panel" style={{
