@@ -18,6 +18,7 @@ import {
   Dices
 } from 'lucide-react';
 import './App.css';
+import logoUrl from './assets/logo.webp';
 import { WheelSpinner, type WheelSegment } from './components/WheelSpinner';
 import { DiceRoller3D } from './components/DiceRoller3D';
 import { CoinFlipper3D } from './components/CoinFlipper3D';
@@ -430,7 +431,7 @@ export default function App() {
       {/* Header Navigation Bar */}
       <header className="navbar">
         <div className="nav-brand" onClick={() => window.location.href = '/'}>
-          <Sparkles size={24} style={{ color: 'var(--neon-cyan)', filter: 'drop-shadow(0 0 5px var(--neon-cyan))' }} />
+          <img src={logoUrl} alt="Spinner Logo" style={{ width: '28px', height: '28px', borderRadius: '6px', objectFit: 'contain' }} />
           <span>SPINNER</span>
         </div>
 

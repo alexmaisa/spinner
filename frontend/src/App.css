@@ -24,10 +24,13 @@
   gap: 10px;
   font-size: 22px;
   font-weight: 800;
+  cursor: pointer;
+}
+
+.nav-brand span {
   background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  cursor: pointer;
 }
 
 .nav-links {
