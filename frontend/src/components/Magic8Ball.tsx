@@ -209,8 +209,8 @@ export const Magic8Ball: React.FC = () => {
             animation: orb-shake 0.15s linear infinite;
           }
           @keyframes triangle-float {
-            0% { transform: scale(0) rotate(360deg) translateY(-90px); opacity: 0; }
-            100% { transform: scale(1) rotate(0deg) translateY(-110px); opacity: 1; }
+            0% { transform: scale(0) rotate(360deg) translateY(-7.5px); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg) translateY(-27.5px); opacity: 1; }
           }
           .triangle-reveal {
             animation: triangle-float 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
