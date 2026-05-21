@@ -6,7 +6,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/UI-Premium-a855f7" alt="UI-Premium">
-  <img src="https://img.shields.io/badge/version-v0.1.2--beta-f97316" alt="Version">
+  <img src="https://img.shields.io/badge/version-v0.2.0--beta-f97316" alt="Version">
   <img src="https://img.shields.io/badge/license-PolyForm%20Noncommercial-ef4444" alt="License">
   <img src="https://img.shields.io/badge/Status-Active-22c55e" alt="Status">
   <img src="https://img.shields.io/badge/Platform-Web-64748b" alt="Platform">
@@ -16,15 +16,24 @@
 
 ---
 
-**Spinner** is a free, premium, lightweight, and completely ad-free web randomizer application. Built with a highly responsive, modern glassmorphism dark interface and backed by a cryptographically secure Go server, Spinner makes spinning custom wheels, rolling dice, flipping coins, and generating random numbers elegant, secure, and incredibly fast.
+**Spinner** is a free, premium, lightweight, and completely ad-free web randomizer application. Built with a highly responsive, modern glassmorphism dark interface and backed by a cryptographically secure Go server, Spinner makes spinning custom wheels, rolling dice, flipping coins, generating random numbers, and running cyberpunk-themed mini-games elegant, secure, and incredibly fast.
 
 ---
 
 ## ✨ Key Features
 
+*   **🔮 Diverse Decision Randomization Suite**: Spinner now houses a suite of 8 diverse and interactive randomization tools:
+    *   **Wheel Spinner**: Interactive canvas-based wheel spinner with physics-based deceleration and synthesized Web Audio sound effects.
+    *   **3D CSS Dice Roller**: Fully-rendered 3D CSS transform-based six-sided dice roller with realistic rolling mechanics.
+    *   **3D CSS Coin Flipper**: Clean, premium 3D CSS coin-toss simulator with realistic flipping animations.
+    *   **RNG & List Shuffler**: Sleek slot-rolling random number generator, list shuffler, and team generator.
+    *   **Cyberpunk Magic 8-Ball**: Futuristic predictive 8-Ball featuring a glowing fluid container and floating inscribed prediction triangle.
+    *   **Neon Plinko**: Canvas-powered interactive Plinko board with real-time bouncing physics and bright neon aesthetics.
+    *   **Cyberpunk Slot Machine**: High-fidelity slot machine with independent reel spinning, standard pull-lever, and a guaranteed match mode.
+    *   **Tarot Card Dealer**: Premium interface to draw and read random Tarot cards with animations and detailed interpretations.
 *   **🔒 Passwordless Magic-Link Authentication**: Clean, secure, and hassle-free registration and login. Users enter their email and receive a cryptographically secure hex-token magic link. No passwords stored, and JWT sessions are securely persisted for 30 days.
 *   **🎲 Cryptographically Secure Randomization**: Backed by a Go server using secure CSPRNG (cryptographically secure pseudo-random number generator) algorithms for completely fair results.
-*   **💎 Premium Glassmorphism UI**: Beautiful, dark-mode design system with stunning micro-animations, vibrant neon HSL theme colors, and fully responsive layouts that look exceptional on mobile, tablet, and desktop.
+*   **💎 Premium Glassmorphism UI**: Beautiful, dark-mode design system with stunning micro-animations, vibrant neon HSL theme colors, fixed premium branded footer, and fully responsive layouts that look exceptional on mobile, tablet, and desktop.
 *   **📜 History & Persistent Storage**: Saves your randomized results and wheels securely in a lightweight SQLite database so you never lose your spin history.
 *   **🐳 Hardened Docker Architecture**: Multi-stage Docker configuration that builds into a minimal, reproducible Alpine image running as a secure, unprivileged non-root user (`spinner` UID 10001) to completely shut down RCE container-escape vectors.
 *   **📬 Embedded Mailpit sidecar**: Seamless local dev integration with an SMTP mail catcher to test magic-link emails locally without real-world SMTP credentials.
