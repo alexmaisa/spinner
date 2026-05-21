@@ -6,6 +6,9 @@ export const SlotMachine: React.FC = () => {
   const [isSpinning, setIsSpinning] = useState(false);
   const [leverPulled, setLeverPulled] = useState(false);
   const [winner, setWinner] = useState<string | null>(null);
+  const [guaranteedMatch, setGuaranteedMatch] = useState(true);
+  const [gameResult, setGameResult] = useState<'win' | 'lose' | null>(null);
+  const [stoppedItems, setStoppedItems] = useState<string[]>([]);
 
   // Reels states
   const [reelOffsets, setReelOffsets] = useState<number[]>([0, 0, 0]);
@@ -26,11 +29,30 @@ export const SlotMachine: React.FC = () => {
     setIsSpinning(true);
     setLeverPulled(true);
     setWinner(null);
+    setGameResult(null);
     setOptionsList(items);
 
-    // Dynamic selection (Single winning item)
-    const winningIdx = Math.floor(Math.random() * items.length);
-    const winItem = items[winningIdx];
+    // Dynamic selection for the 3 reels
+    let idx1 = 0;
+    let idx2 = 0;
+    let idx3 = 0;
+
+    if (guaranteedMatch) {
+      // All reels stop on the same winning item
+      const winIdx = Math.floor(Math.random() * items.length);
+      idx1 = winIdx;
+      idx2 = winIdx;
+      idx3 = winIdx;
+    } else {
+      // Independent reels stop on random items
+      idx1 = Math.floor(Math.random() * items.length);
+      idx2 = Math.floor(Math.random() * items.length);
+      idx3 = Math.floor(Math.random() * items.length);
+    }
+
+    const item1 = items[idx1];
+    const item2 = items[idx2];
+    const item3 = items[idx3];
 
     // Trigger physical lever pull animation reset
     setTimeout(() => setLeverPulled(false), 400);
@@ -40,9 +62,9 @@ export const SlotMachine: React.FC = () => {
     const listHeight = items.length * itemHeight;
 
     const targetOffsets = [
-      -(winningIdx * itemHeight + listHeight * (repeats - 3)),
-      -(winningIdx * itemHeight + listHeight * (repeats - 2)),
-      -(winningIdx * itemHeight + listHeight * (repeats - 1))
+      -(idx1 * itemHeight + listHeight * (repeats - 3)),
+      -(idx2 * itemHeight + listHeight * (repeats - 2)),
+      -(idx3 * itemHeight + listHeight * (repeats - 1))
     ];
 
     // Spin Reel 1
@@ -62,7 +84,15 @@ export const SlotMachine: React.FC = () => {
 
     // Finished rolling trigger (Reel 3 finishes at 3.3 seconds total)
     setTimeout(() => {
-      setWinner(winItem);
+      const isWin = item1 === item2 && item2 === item3;
+      setStoppedItems([item1, item2, item3]);
+      if (isWin) {
+        setWinner(item1);
+        setGameResult('win');
+      } else {
+        setWinner(null);
+        setGameResult('lose');
+      }
       setIsSpinning(false);
     }, 3300);
   };
@@ -239,19 +269,40 @@ export const SlotMachine: React.FC = () => {
 
         {/* Spin trigger & Winner message display */}
         <div style={{ width: '100%', maxWidth: '320px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          {winner && !isSpinning && (
+          {!isSpinning && gameResult === 'win' && winner && (
             <div className="pulse-glow glass-panel floating" style={{
-              padding: '10px 24px',
+              padding: '12px 24px',
               background: 'rgba(15, 23, 42, 0.95)',
-              border: '1px solid var(--neon-pink)',
+              border: '2.5px solid var(--neon-pink)',
               color: 'var(--text-primary)',
               fontSize: '15px',
               fontWeight: 'bold',
               borderRadius: '20px',
               textAlign: 'center',
-              alignSelf: 'center'
+              alignSelf: 'center',
+              boxShadow: '0 0 20px var(--neon-pink-glow)'
             }}>
-              Match! Winner: <span style={{ color: 'var(--neon-pink)', fontSize: '18px' }}>{winner}</span>
+              🎉 JACKPOT! Winner: <span style={{ color: 'var(--neon-pink)', fontSize: '18px', textShadow: '0 0 8px var(--neon-pink-glow)' }}>{winner}</span>
+            </div>
+          )}
+
+          {!isSpinning && gameResult === 'lose' && stoppedItems.length === 3 && (
+            <div className="glass-panel" style={{
+              padding: '12px 20px',
+              background: 'rgba(30, 41, 59, 0.7)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: 'var(--text-secondary)',
+              fontSize: '13px',
+              borderRadius: '16px',
+              textAlign: 'center',
+              alignSelf: 'center',
+              lineHeight: '1.5'
+            }}>
+              ❌ No Match! Landed on:<br />
+              <span style={{ color: 'var(--neon-cyan)', fontWeight: 'bold' }}>{stoppedItems[0]}</span> |{' '}
+              <span style={{ color: 'var(--neon-purple)', fontWeight: 'bold' }}>{stoppedItems[1]}</span> |{' '}
+              <span style={{ color: 'var(--neon-pink)', fontWeight: 'bold' }}>{stoppedItems[2]}</span>
+              <div style={{ fontSize: '11px', marginTop: '6px', opacity: 0.8 }}>Pull the lever again for a Jackpot match!</div>
             </div>
           )}
 
@@ -264,16 +315,53 @@ export const SlotMachine: React.FC = () => {
 
       {/* Options Sidebar */}
       <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, boxSizing: 'border-box' }}>
-        <h4 style={{ fontSize: '14px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px', marginBottom: '16px', color: 'var(--text-secondary)' }}>SLOT SYMBOLS</h4>
+        <h4 style={{ fontSize: '14px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px', marginBottom: '16px', color: 'var(--text-secondary)' }}>SLOT CABINET</h4>
 
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: '10px', minHeight: 0 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: '14px', minHeight: 0 }}>
+          {/* Game Mode Settings Toggle */}
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.02)',
+            border: '1px solid var(--border-color)',
+            borderRadius: '12px',
+            padding: '12px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px'
+          }}>
+            <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)', fontWeight: 600 }}>
+              Game Settings
+            </span>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '13px', userSelect: 'none' }}>
+              <input
+                type="checkbox"
+                checked={guaranteedMatch}
+                onChange={(e) => setGuaranteedMatch(e.target.checked)}
+                disabled={isSpinning}
+                style={{
+                  accentColor: 'var(--neon-pink)',
+                  width: '16px',
+                  height: '16px',
+                  cursor: 'pointer'
+                }}
+              />
+              <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
+                Guaranteed Match
+              </span>
+            </label>
+            <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: 0, lineHeight: '1.4' }}>
+              {guaranteedMatch 
+                ? "Reels are guaranteed to land on a jackpot matching item to give you an instant decision." 
+                : "Reels stop independently. Pull the lever and only get a decision if you hit a jackpot match!"}
+            </p>
+          </div>
+
           <label style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Symbols list (one per line):</label>
           <textarea
             className="glass-input"
             value={optionsText}
             onChange={(e) => setOptionsText(e.target.value)}
             placeholder="Apple\nBanana\nCherry"
-            style={{ flex: 1, minHeight: '180px', fontSize: '13px', fontFamily: 'monospace', resize: 'none' }}
+            style={{ flex: 1, minHeight: '150px', fontSize: '13px', fontFamily: 'monospace', resize: 'none' }}
             disabled={isSpinning}
           />
           <button
