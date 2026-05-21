@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Sparkles, 
   RotateCw, 
@@ -47,7 +47,7 @@ export default function App() {
   // Navigation & Authentication states
   const [activeTab, setActiveTab] = useState<'wheel' | 'dice' | 'coin' | 'extra'>('wheel');
   const [token, setToken] = useState<string | null>(localStorage.getItem('spinner_token'));
-  const [username, setUsername] = useState<string | null>(localStorage.getItem('spinner_username'));
+  const [userEmail, setUserEmail] = useState<string | null>(localStorage.getItem('spinner_email'));
   const [showAuthModal, setShowAuthModal] = useState(false);
 
 
@@ -82,9 +82,43 @@ export default function App() {
 
   const socketRef = useRef<WebSocket | null>(null);
 
+  // Decode JWT payload to extract email (without a library)
+  const decodeJwtEmail = useCallback((jwt: string): string | null => {
+    try {
+      const payload = JSON.parse(atob(jwt.split('.')[1]));
+      return payload.email || null;
+    } catch {
+      return null;
+    }
+  }, []);
+
   // Initialize and check URL parameters on load
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+
+    // Handle magic-link auth callback
+    const authToken = params.get('auth_token');
+    const authError = params.get('auth_error');
+
+    if (authToken) {
+      const email = decodeJwtEmail(authToken);
+      if (email) {
+        setToken(authToken);
+        setUserEmail(email);
+        localStorage.setItem('spinner_token', authToken);
+        localStorage.setItem('spinner_email', email);
+      }
+      // Clean auth params from URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      loadSavedSpinners();
+      return;
+    }
+
+    if (authError) {
+      alert(`Sign-in failed: ${authError}`);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
     const roomParam = params.get('room');
     const shareParam = params.get('share');
 
@@ -375,20 +409,11 @@ export default function App() {
     }
   };
 
-  // Handle successful login/signup callbacks
-  const handleAuthSuccess = (newToken: string, newUser: string) => {
-    setToken(newToken);
-    setUsername(newUser);
-    localStorage.setItem('spinner_token', newToken);
-    localStorage.setItem('spinner_username', newUser);
-    loadSavedSpinners();
-  };
-
   const handleLogout = () => {
     setToken(null);
-    setUsername(null);
+    setUserEmail(null);
     localStorage.removeItem('spinner_token');
-    localStorage.removeItem('spinner_username');
+    localStorage.removeItem('spinner_email');
     setSavedConfigs([]);
     loadSavedSpinners();
     setShowHistory(false);
@@ -412,8 +437,7 @@ export default function App() {
         <div className="nav-links">
           {token ? (
             <div className="nav-user">
-              <span style={{ color: 'var(--text-secondary)' }}>Welcome,</span>
-              <span style={{ color: 'var(--neon-cyan)', fontWeight: 'bold' }}>{username}</span>
+              <span style={{ color: 'var(--neon-cyan)', fontWeight: '500', fontSize: '13px' }}>{userEmail}</span>
               <button 
                 className="btn btn-secondary" 
                 style={{ padding: '6px 12px', gap: '6px', fontSize: '13px' }}
@@ -431,7 +455,7 @@ export default function App() {
                 onClick={handleLogout}
               >
                 <LogOut size={16} />
-                Log Out
+                Sign Out
               </button>
             </div>
           ) : (
@@ -740,7 +764,6 @@ export default function App() {
         <AuthModal 
           apiUrl={API_BASE}
           onClose={() => setShowAuthModal(false)}
-          onAuthSuccess={handleAuthSuccess}
         />
       )}
     </div>
