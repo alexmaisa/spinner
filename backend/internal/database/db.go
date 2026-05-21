@@ -40,6 +40,7 @@ func MigrateSchema() error {
 		`CREATE TABLE IF NOT EXISTS magic_tokens (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			email TEXT NOT NULL,
+			ip_address TEXT,
 			token TEXT UNIQUE NOT NULL,
 			expires_at DATETIME NOT NULL,
 			used INTEGER DEFAULT 0,
@@ -72,6 +73,9 @@ func MigrateSchema() error {
 			return fmt.Errorf("migration query failed: %w", err)
 		}
 	}
+
+	// Try to add ip_address column to existing databases if it doesn't exist
+	_, _ = DB.Exec(`ALTER TABLE magic_tokens ADD COLUMN ip_address TEXT`)
 
 	return nil
 }
@@ -106,10 +110,10 @@ func FindOrCreateUserByEmail(email string) (*models.User, error) {
 	return user, nil
 }
 
-// CreateMagicToken stores a new magic login token for the given email.
-func CreateMagicToken(email, token string, expiresAt time.Time) error {
-	query := `INSERT INTO magic_tokens (email, token, expires_at, created_at) VALUES (?, ?, ?, ?)`
-	_, err := DB.Exec(query, email, token, expiresAt, time.Now())
+// CreateMagicToken stores a new magic login token for the given email and client IP.
+func CreateMagicToken(email, ipAddress, token string, expiresAt time.Time) error {
+	query := `INSERT INTO magic_tokens (email, ip_address, token, expires_at, created_at) VALUES (?, ?, ?, ?, ?)`
+	_, err := DB.Exec(query, email, ipAddress, token, expiresAt, time.Now())
 	return err
 }
 
@@ -118,6 +122,23 @@ func GetLastMagicTokenTime(email string) (time.Time, error) {
 	var createdAtStr string
 	query := `SELECT created_at FROM magic_tokens WHERE email = ? ORDER BY created_at DESC LIMIT 1`
 	err := DB.QueryRow(query, email).Scan(&createdAtStr)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return time.Time{}, nil
+		}
+		return time.Time{}, err
+	}
+	return parseTime(createdAtStr), nil
+}
+
+// GetLastMagicTokenTimeByIP retrieves the created_at timestamp of the most recent token for this IP address.
+func GetLastMagicTokenTimeByIP(ip string) (time.Time, error) {
+	if ip == "" {
+		return time.Time{}, nil
+	}
+	var createdAtStr string
+	query := `SELECT created_at FROM magic_tokens WHERE ip_address = ? ORDER BY created_at DESC LIMIT 1`
+	err := DB.QueryRow(query, ip).Scan(&createdAtStr)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return time.Time{}, nil

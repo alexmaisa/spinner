@@ -124,13 +124,29 @@ func MagicLinkRequestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Rate limiting / Cooldown check: prevent requesting magic links too frequently
-	lastTime, err := database.GetLastMagicTokenTime(req.Email)
-	if err == nil && !lastTime.IsZero() {
-		if time.Since(lastTime) < 60*time.Second {
+	clientIP := getClientIP(r)
+
+	// Check per-email rate limit
+	lastEmailTime, err := database.GetLastMagicTokenTime(req.Email)
+	if err == nil && !lastEmailTime.IsZero() {
+		if time.Since(lastEmailTime) < 60*time.Second {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusTooManyRequests)
 			json.NewEncoder(w).Encode(map[string]string{
 				"error": "Please wait 60 seconds before requesting another login link.",
+			})
+			return
+		}
+	}
+
+	// Check per-IP rate limit
+	lastIPTime, err := database.GetLastMagicTokenTimeByIP(clientIP)
+	if err == nil && !lastIPTime.IsZero() {
+		if time.Since(lastIPTime) < 60*time.Second {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusTooManyRequests)
+			json.NewEncoder(w).Encode(map[string]string{
+				"error": "Too many requests from this IP. Please wait 60 seconds.",
 			})
 			return
 		}
@@ -146,7 +162,7 @@ func MagicLinkRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Store the token with 15-minute expiry
 	expiresAt := time.Now().Add(15 * time.Minute)
-	if err := database.CreateMagicToken(req.Email, magicToken, expiresAt); err != nil {
+	if err := database.CreateMagicToken(req.Email, clientIP, magicToken, expiresAt); err != nil {
 		http.Error(w, `{"error":"Failed to create login token"}`, http.StatusInternalServerError)
 		return
 	}
@@ -228,4 +244,22 @@ func getEnv(key, fallback string) string {
 		return value
 	}
 	return fallback
+}
+
+// getClientIP extracts the user's real client IP address, taking reverse proxies into account.
+func getClientIP(r *http.Request) string {
+	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+		ips := strings.Split(xff, ",")
+		return strings.TrimSpace(ips[0])
+	}
+	if xri := r.Header.Get("X-Real-IP"); xri != "" {
+		return xri
+	}
+	ip := r.RemoteAddr
+	if lastColon := strings.LastIndex(ip, ":"); lastColon != -1 {
+		ip = ip[:lastColon]
+	}
+	// Strip brackets from IPv6 addresses
+	ip = strings.Trim(ip, "[]")
+	return ip
 }
