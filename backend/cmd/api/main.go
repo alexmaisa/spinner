@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/alexmaisa/spinner/backend/internal/api"
 	"github.com/alexmaisa/spinner/backend/internal/database"
@@ -40,12 +41,25 @@ func main() {
 	defer database.DB.Close()
 	log.Println("Database successfully initialized and migrated.")
 
-	// 3. Register HTTP Routes
+	// 3. Start background token cleanup goroutine
+	go func() {
+		ticker := time.NewTicker(30 * time.Minute)
+		defer ticker.Stop()
+		for range ticker.C {
+			if err := database.CleanupExpiredTokens(); err != nil {
+				log.Printf("Warning: Token cleanup failed: %v", err)
+			} else {
+				log.Println("Background: Expired magic tokens cleaned up.")
+			}
+		}
+	}()
+
+	// 4. Register HTTP Routes
 	mux := http.NewServeMux()
 
-	// Public Auth endpoints
-	mux.HandleFunc("/api/auth/register", api.RegisterHandler)
-	mux.HandleFunc("/api/auth/login", api.LoginHandler)
+	// Passwordless auth endpoints
+	mux.HandleFunc("/api/auth/magic-link", api.MagicLinkRequestHandler)
+	mux.HandleFunc("/api/auth/verify", api.MagicLinkVerifyHandler)
 
 	// Custom configuration APIs (wrapped in JWT parsing middleware)
 	mux.Handle("/api/spinners", api.AuthMiddleware(http.HandlerFunc(api.SpinnerConfigHandler)))
@@ -83,9 +97,10 @@ func main() {
 		http.NotFound(w, r)
 	}))
 
-	// 4. Start HTTP Server with CORS
+	// 5. Start HTTP Server with CORS
 	serverAddr := ":" + port
 	log.Printf("Server is starting on %s (HTTP)...", serverAddr)
+	log.Printf("Frontend URL for magic-link redirects: %s", getEnv("FRONTEND_URL", "http://localhost:5173"))
 	if err := http.ListenAndServe(serverAddr, CORSMiddleware(mux)); err != nil {
 		log.Fatalf("Fatal: Server failed to start: %v", err)
 	}
