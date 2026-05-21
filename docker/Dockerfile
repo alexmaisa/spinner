@@ -33,24 +33,31 @@ COPY backend /app/backend
 # Compile statically linked Go server binary
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o /app/server cmd/api/main.go
 
-# Stage 3: Minimal runtime image
-FROM alpine:latest
+# Stage 3: Minimal runtime image (using a pinned stable Alpine version for reproducible builds)
+FROM alpine:3.20.5
 WORKDIR /app
 
-# Install essential certs and timezone data
-RUN apk --no-cache add ca-certificates tzdata
+# Install essential certs, timezone data and create a secure non-root user
+RUN apk --no-cache add ca-certificates tzdata && \
+    addgroup -g 10001 -S spinner && \
+    adduser -u 10001 -S -G spinner -h /app spinner && \
+    mkdir -p /app/data && \
+    chown -R spinner:spinner /app
 
-# Copy compiled Go server binary
-COPY --from=backend-builder /app/server /app/server
+# Copy compiled Go server binary with correct non-root owner
+COPY --from=backend-builder --chown=spinner:spinner /app/server /app/server
 
-# Copy compiled React frontend assets
-COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
+# Copy compiled React frontend assets with correct non-root owner
+COPY --from=frontend-builder --chown=spinner:spinner /app/frontend/dist /app/frontend/dist
 
 # Configure environment variables
 ENV DB_PATH=/app/data/spinner.db
 ENV PORT=8080
 ENV FRONTEND_URL=http://localhost:8080
 ENV BASE_URL=http://localhost:8080
+
+# Switch to the non-root user
+USER spinner
 
 # Expose ports
 EXPOSE 8080
