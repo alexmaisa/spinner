@@ -2,12 +2,32 @@ package models
 
 import "time"
 
-// User represents a registered user account.
+// User represents a registered user account (passwordless, email-only).
 type User struct {
-	ID           int64     `json:"id"`
-	Username     string    `json:"username"`
-	PasswordHash string    `json:"-"`
-	CreatedAt    time.Time `json:"created_at"`
+	ID        int64     `json:"id"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// MagicToken represents a single-use login token sent via email.
+type MagicToken struct {
+	ID        int64     `json:"id"`
+	Email     string    `json:"email"`
+	Token     string    `json:"token"`
+	ExpiresAt time.Time `json:"expires_at"`
+	Used      bool      `json:"used"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// MagicLinkRequest is the payload for requesting a magic login link.
+type MagicLinkRequest struct {
+	Email string `json:"email"`
+}
+
+// AuthResponse is returned on successful authentication.
+type AuthResponse struct {
+	Token string `json:"token"`
+	Email string `json:"email"`
 }
 
 // SpinnerConfig represents a saved randomization configuration (e.g., custom wheel or dice settings).
@@ -29,24 +49,6 @@ type SpinHistory struct {
 	Type      string    `json:"type"`
 	Result    string    `json:"result"`
 	CreatedAt time.Time `json:"created_at"`
-}
-
-// RegisterRequest is the payload for registering a new user.
-type RegisterRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-// LoginRequest is the payload for logging in.
-type LoginRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-// AuthResponse is returned on successful authentication.
-type AuthResponse struct {
-	Token    string `json:"token"`
-	Username string `json:"username"`
 }
 
 // SpinRequest is the payload for triggering a server-side secure spin.

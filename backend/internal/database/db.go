@@ -9,7 +9,6 @@ import (
 	_ "modernc.org/sqlite" // Pure Go SQLite driver
 
 	"github.com/alexmaisa/spinner/backend/internal/models"
-	"golang.org/x/crypto/bcrypt"
 )
 
 var DB *sql.DB
@@ -35,8 +34,15 @@ func MigrateSchema() error {
 	queries := []string{
 		`CREATE TABLE IF NOT EXISTS users (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			username TEXT UNIQUE NOT NULL,
-			password_hash TEXT NOT NULL,
+			email TEXT UNIQUE NOT NULL,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		);`,
+		`CREATE TABLE IF NOT EXISTS magic_tokens (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			email TEXT NOT NULL,
+			token TEXT UNIQUE NOT NULL,
+			expires_at DATETIME NOT NULL,
+			used INTEGER DEFAULT 0,
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		);`,
 		`CREATE TABLE IF NOT EXISTS spinners (
@@ -70,57 +76,82 @@ func MigrateSchema() error {
 	return nil
 }
 
-// CreateUser registers a new user with a hashed password.
-func CreateUser(username, password string) (*models.User, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return nil, fmt.Errorf("failed to hash password: %w", err)
-	}
-
-	query := `INSERT INTO users (username, password_hash, created_at) VALUES (?, ?, ?) RETURNING id, username, created_at`
+// FindOrCreateUserByEmail returns an existing user by email, or creates a new one if not found.
+func FindOrCreateUserByEmail(email string) (*models.User, error) {
 	user := &models.User{}
 	var createdAtStr string
 
-	err = DB.QueryRow(query, username, string(hashedPassword), time.Now()).Scan(&user.ID, &user.Username, &createdAtStr)
+	// Try to find existing user
+	err := DB.QueryRow(`SELECT id, email, created_at FROM users WHERE email = ?`, email).
+		Scan(&user.ID, &user.Email, &createdAtStr)
+
+	if err == nil {
+		user.CreatedAt = parseTime(createdAtStr)
+		return user, nil
+	}
+
+	if !errors.Is(err, sql.ErrNoRows) {
+		return nil, fmt.Errorf("failed to query user: %w", err)
+	}
+
+	// Create new user
+	query := `INSERT INTO users (email, created_at) VALUES (?, ?) RETURNING id, email, created_at`
+	now := time.Now()
+	err = DB.QueryRow(query, email, now).Scan(&user.ID, &user.Email, &createdAtStr)
 	if err != nil {
-		return nil, err // Could be duplicate username error
+		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	user.CreatedAt, _ = time.Parse(time.RFC3339, createdAtStr)
-	if user.CreatedAt.IsZero() {
-		// Fallback parse for sqlite timestamp formats
-		user.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", createdAtStr)
-	}
-
+	user.CreatedAt = parseTime(createdAtStr)
 	return user, nil
 }
 
-// AuthenticateUser verifies user credentials and returns the user object if successful.
-func AuthenticateUser(username, password string) (*models.User, error) {
-	query := `SELECT id, username, password_hash, created_at FROM users WHERE username = ?`
-	user := &models.User{}
-	var createdAtStr string
+// CreateMagicToken stores a new magic login token for the given email.
+func CreateMagicToken(email, token string, expiresAt time.Time) error {
+	query := `INSERT INTO magic_tokens (email, token, expires_at, created_at) VALUES (?, ?, ?, ?)`
+	_, err := DB.Exec(query, email, token, expiresAt, time.Now())
+	return err
+}
 
-	err := DB.QueryRow(query, username).Scan(&user.ID, &user.Username, &user.PasswordHash, &createdAtStr)
+// VerifyMagicToken checks if a magic token is valid (exists, not expired, not used).
+// On success, it marks the token as used and returns the associated email.
+func VerifyMagicToken(token string) (string, error) {
+	var id int64
+	var email string
+	var expiresAtStr string
+	var used int
+
+	query := `SELECT id, email, expires_at, used FROM magic_tokens WHERE token = ?`
+	err := DB.QueryRow(query, token).Scan(&id, &email, &expiresAtStr, &used)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, errors.New("invalid username or password")
+			return "", errors.New("invalid or expired magic link")
 		}
-		return nil, err
+		return "", fmt.Errorf("failed to query magic token: %w", err)
 	}
 
-	// Verify password
-	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
+	if used != 0 {
+		return "", errors.New("this magic link has already been used")
+	}
+
+	expiresAt := parseTime(expiresAtStr)
+	if time.Now().After(expiresAt) {
+		return "", errors.New("this magic link has expired")
+	}
+
+	// Mark token as used
+	_, err = DB.Exec(`UPDATE magic_tokens SET used = 1 WHERE id = ?`, id)
 	if err != nil {
-		return nil, errors.New("invalid username or password")
+		return "", fmt.Errorf("failed to mark token as used: %w", err)
 	}
 
-	user.CreatedAt, _ = time.Parse(time.RFC3339, createdAtStr)
-	if user.CreatedAt.IsZero() {
-		user.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", createdAtStr)
-	}
+	return email, nil
+}
 
-	return user, nil
+// CleanupExpiredTokens removes magic tokens that have expired or been used.
+func CleanupExpiredTokens() error {
+	_, err := DB.Exec(`DELETE FROM magic_tokens WHERE used = 1 OR expires_at < ?`, time.Now())
+	return err
 }
 
 // SaveSpinnerConfig saves or updates a spinner configuration.
@@ -148,15 +179,8 @@ func GetSpinnerConfig(id string) (*models.SpinnerConfig, error) {
 		return nil, err
 	}
 
-	cfg.CreatedAt, _ = time.Parse(time.RFC3339, createdAtStr)
-	if cfg.CreatedAt.IsZero() {
-		cfg.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", createdAtStr)
-	}
-
-	cfg.UpdatedAt, _ = time.Parse(time.RFC3339, updatedAtStr)
-	if cfg.UpdatedAt.IsZero() {
-		cfg.UpdatedAt, _ = time.Parse("2006-01-02 15:04:05", updatedAtStr)
-	}
+	cfg.CreatedAt = parseTime(createdAtStr)
+	cfg.UpdatedAt = parseTime(updatedAtStr)
 
 	return cfg, nil
 }
@@ -179,15 +203,8 @@ func GetUserSpinnerConfigs(userID int64) ([]*models.SpinnerConfig, error) {
 			return nil, err
 		}
 
-		cfg.CreatedAt, _ = time.Parse(time.RFC3339, createdAtStr)
-		if cfg.CreatedAt.IsZero() {
-			cfg.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", createdAtStr)
-		}
-
-		cfg.UpdatedAt, _ = time.Parse(time.RFC3339, updatedAtStr)
-		if cfg.UpdatedAt.IsZero() {
-			cfg.UpdatedAt, _ = time.Parse("2006-01-02 15:04:05", updatedAtStr)
-		}
+		cfg.CreatedAt = parseTime(createdAtStr)
+		cfg.UpdatedAt = parseTime(updatedAtStr)
 
 		configs = append(configs, cfg)
 	}
@@ -239,13 +256,27 @@ func GetUserSpinHistory(userID int64, limit int) ([]*models.SpinHistory, error) 
 			return nil, err
 		}
 
-		h.CreatedAt, _ = time.Parse(time.RFC3339, createdAtStr)
-		if h.CreatedAt.IsZero() {
-			h.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", createdAtStr)
-		}
+		h.CreatedAt = parseTime(createdAtStr)
 
 		history = append(history, h)
 	}
 
 	return history, nil
+}
+
+// parseTime attempts to parse a time string in common SQLite formats.
+func parseTime(s string) time.Time {
+	t, err := time.Parse(time.RFC3339, s)
+	if err == nil {
+		return t
+	}
+	t, err = time.Parse("2006-01-02 15:04:05", s)
+	if err == nil {
+		return t
+	}
+	t, err = time.Parse("2006-01-02T15:04:05Z", s)
+	if err == nil {
+		return t
+	}
+	return time.Time{}
 }
