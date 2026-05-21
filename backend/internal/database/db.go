@@ -113,6 +113,20 @@ func CreateMagicToken(email, token string, expiresAt time.Time) error {
 	return err
 }
 
+// GetLastMagicTokenTime retrieves the created_at timestamp of the most recent token for this email.
+func GetLastMagicTokenTime(email string) (time.Time, error) {
+	var createdAtStr string
+	query := `SELECT created_at FROM magic_tokens WHERE email = ? ORDER BY created_at DESC LIMIT 1`
+	err := DB.QueryRow(query, email).Scan(&createdAtStr)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return time.Time{}, nil
+		}
+		return time.Time{}, err
+	}
+	return parseTime(createdAtStr), nil
+}
+
 // VerifyMagicToken checks if a magic token is valid (exists, not expired, not used).
 // On success, it marks the token as used and returns the associated email.
 func VerifyMagicToken(token string) (string, error) {

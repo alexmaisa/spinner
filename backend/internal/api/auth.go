@@ -123,6 +123,19 @@ func MagicLinkRequestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Rate limiting / Cooldown check: prevent requesting magic links too frequently
+	lastTime, err := database.GetLastMagicTokenTime(req.Email)
+	if err == nil && !lastTime.IsZero() {
+		if time.Since(lastTime) < 60*time.Second {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusTooManyRequests)
+			json.NewEncoder(w).Encode(map[string]string{
+				"error": "Please wait 60 seconds before requesting another login link.",
+			})
+			return
+		}
+	}
+
 	// Generate a cryptographically secure random token
 	tokenBytes := make([]byte, 32)
 	if _, err := rand.Read(tokenBytes); err != nil {
