@@ -1,101 +1,53 @@
 import React, { useState } from 'react';
-import { X, LogIn, UserPlus, ShieldAlert, CheckCircle } from 'lucide-react';
+import { X, Mail, ShieldAlert, CheckCircle, Send, ArrowLeft } from 'lucide-react';
 
 interface AuthModalProps {
   onClose: () => void;
-  onAuthSuccess: (token: string, username: string) => void;
   apiUrl: string;
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onAuthSuccess, apiUrl }) => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+export const AuthModal: React.FC<AuthModalProps> = ({ onClose, apiUrl }) => {
+  const [email, setEmail] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [syncStatus, setSyncStatus] = useState<string | null>(null);
-
-  // Sync locally stored spinner configurations to the authenticated SQLite backend account
-  const syncLocalSpinners = async (token: string) => {
-    try {
-      const localData = localStorage.getItem('local_spinners');
-      if (!localData) return;
-
-      const spinners = JSON.parse(localData);
-      if (!Array.isArray(spinners) || spinners.length === 0) return;
-
-      setSyncStatus(`Syncing ${spinners.length} local configurations...`);
-
-      for (const spinner of spinners) {
-        // Post each local spinner to the backend to persist in SQLite
-        const resp = await fetch(`${apiUrl}/api/spinners`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            title: spinner.title,
-            type: spinner.type,
-            data: JSON.stringify(spinner.data),
-          }),
-        });
-
-        if (!resp.ok) {
-          throw new Error('Failed to sync one or more spinners');
-        }
-      }
-
-      // Clear local storage configurations since they are now safely in the cloud
-      localStorage.removeItem('local_spinners');
-      setSyncStatus('Local configurations successfully synchronized!');
-    } catch (e: any) {
-      console.error('Sync Error:', e);
-      setSyncStatus('Authentication completed, but local sync had a minor error.');
-    }
-  };
+  const [isSent, setIsSent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username.trim() || password.length < 6) {
-      setErrorMsg('Username is required, and password must be at least 6 characters.');
+    const trimmed = email.trim().toLowerCase();
+
+    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      setErrorMsg('Please enter a valid email address.');
       return;
     }
 
     setIsLoading(true);
     setErrorMsg(null);
-    setSyncStatus(null);
-
-    const endpoint = isLogin ? 'login' : 'register';
 
     try {
-      const resp = await fetch(`${apiUrl}/api/auth/${endpoint}`, {
+      const resp = await fetch(`${apiUrl}/api/auth/magic-link`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: trimmed }),
       });
 
       const data = await resp.json();
 
       if (!resp.ok) {
-        throw new Error(data.error || 'Authentication failed');
+        throw new Error(data.error || 'Failed to send magic link');
       }
 
-      // Sync local spinners prior to completing the success callback
-      await syncLocalSpinners(data.token);
-
-      // Trigger success callback
-      setTimeout(() => {
-        onAuthSuccess(data.token, data.username);
-        onClose();
-      }, syncStatus ? 1500 : 0);
-
+      setIsSent(true);
     } catch (err: any) {
       setErrorMsg(err.message || 'Server connection failed');
+    } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleResend = () => {
+    setIsSent(false);
+    setErrorMsg(null);
   };
 
   return (
@@ -115,8 +67,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onAuthSuccess, ap
       {/* Modal Dialog Pane */}
       <div className="glass-panel" style={{
         width: '100%',
-        maxWidth: '400px',
-        padding: '32px',
+        maxWidth: '420px',
+        padding: '36px',
         position: 'relative',
         animation: 'float 6s ease-in-out infinite'
       }}>
@@ -130,132 +82,181 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onAuthSuccess, ap
           <X size={20} />
         </button>
 
-        {/* Modal Title */}
-        <h3 style={{
-          fontSize: '22px',
-          marginBottom: '8px',
-          textAlign: 'center',
-          background: 'linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent'
-        }}>
-          {isLogin ? 'Welcome Back!' : 'Create Account'}
-        </h3>
-        <p style={{
-          fontSize: '13px',
-          color: 'var(--text-secondary)',
-          textAlign: 'center',
-          marginBottom: '24px'
-        }}>
-          {isLogin 
-            ? 'Sign in to access saved spinners & cloud rooms' 
-            : 'Access premium cloud saving & synchronization features'}
-        </p>
+        {!isSent ? (
+          <>
+            {/* Email Icon */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              marginBottom: '16px'
+            }}>
+              <div style={{
+                width: '56px',
+                height: '56px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(34, 211, 238, 0.15))',
+                border: '1px solid rgba(139, 92, 246, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <Mail size={26} style={{ color: 'var(--neon-cyan)' }} />
+              </div>
+            </div>
 
-        {/* Status displays */}
-        {errorMsg && (
-          <div style={{
-            background: 'rgba(236, 72, 153, 0.08)',
-            border: '1px solid rgba(236, 72, 153, 0.3)',
-            borderRadius: '8px',
-            padding: '10px 14px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            fontSize: '13px',
-            color: 'var(--neon-pink)',
-            marginBottom: '16px'
-          }}>
-            <ShieldAlert size={18} style={{ flexShrink: 0 }} />
-            <span>{errorMsg}</span>
-          </div>
-        )}
+            {/* Modal Title */}
+            <h3 style={{
+              fontSize: '22px',
+              marginBottom: '8px',
+              textAlign: 'center',
+              background: 'linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>
+              Sign In to Spinner
+            </h3>
+            <p style={{
+              fontSize: '13px',
+              color: 'var(--text-secondary)',
+              textAlign: 'center',
+              marginBottom: '24px',
+              lineHeight: '1.5'
+            }}>
+              Enter your email address and we'll send you a magic link to sign in instantly — no password needed.
+            </p>
 
-        {syncStatus && (
-          <div style={{
-            background: 'rgba(16, 185, 129, 0.08)',
-            border: '1px solid rgba(16, 185, 129, 0.3)',
-            borderRadius: '8px',
-            padding: '10px 14px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            fontSize: '13px',
-            color: 'var(--neon-green)',
-            marginBottom: '16px'
-          }}>
-            <CheckCircle size={18} style={{ flexShrink: 0 }} />
-            <span>{syncStatus}</span>
-          </div>
-        )}
+            {/* Error display */}
+            {errorMsg && (
+              <div style={{
+                background: 'rgba(236, 72, 153, 0.08)',
+                border: '1px solid rgba(236, 72, 153, 0.3)',
+                borderRadius: '8px',
+                padding: '10px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '13px',
+                color: 'var(--neon-pink)',
+                marginBottom: '16px'
+              }}>
+                <ShieldAlert size={18} style={{ flexShrink: 0 }} />
+                <span>{errorMsg}</span>
+              </div>
+            )}
 
-        {/* Form elements */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '6px' }}>
-              Username
-            </label>
-            <input
-              type="text"
-              className="glass-input"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter unique username..."
-              required
-              disabled={isLoading}
-            />
-          </div>
+            {/* Form */}
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  className="glass-input"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  required
+                  disabled={isLoading}
+                  autoFocus
+                  id="auth-email-input"
+                />
+              </div>
 
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '6px' }}>
-              Password
-            </label>
-            <input
-              type="password"
-              className="glass-input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Minimum 6 characters..."
-              required
-              disabled={isLoading}
-            />
-          </div>
+              <button 
+                type="submit" 
+                className="btn btn-primary" 
+                style={{ width: '100%', padding: '12px', marginTop: '4px', gap: '8px' }}
+                disabled={isLoading}
+                id="auth-send-magic-link"
+              >
+                <Send size={18} />
+                {isLoading ? 'Sending...' : 'Send Magic Link'}
+              </button>
+            </form>
 
-          <button 
-            type="submit" 
-            className="btn btn-primary" 
-            style={{ width: '100%', padding: '12px', marginTop: '8px', gap: '8px' }}
-            disabled={isLoading}
-          >
-            {isLogin ? <LogIn size={18} /> : <UserPlus size={18} />}
-            {isLoading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
-          </button>
-        </form>
+            <p style={{
+              fontSize: '11px',
+              color: 'var(--text-muted)',
+              textAlign: 'center',
+              marginTop: '20px',
+              lineHeight: '1.5'
+            }}>
+              By signing in, you'll stay logged in for 30 days. New users are automatically registered.
+            </p>
+          </>
+        ) : (
+          <>
+            {/* Success State: Check your inbox */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              marginBottom: '16px'
+            }}>
+              <div style={{
+                width: '56px',
+                height: '56px',
+                borderRadius: '50%',
+                background: 'rgba(16, 185, 129, 0.12)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <CheckCircle size={26} style={{ color: 'var(--neon-green)' }} />
+              </div>
+            </div>
 
-        {/* Toggle between register and login */}
-        <div style={{
-          marginTop: '24px',
-          textAlign: 'center',
-          fontSize: '13px',
-          color: 'var(--text-secondary)'
-        }}>
-          {isLogin ? "Don't have an account? " : "Already have an account? "}
-          <span 
-            style={{
+            <h3 style={{
+              fontSize: '22px',
+              marginBottom: '8px',
+              textAlign: 'center',
+              background: 'linear-gradient(135deg, var(--neon-green), var(--neon-cyan))',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>
+              Check Your Inbox
+            </h3>
+            <p style={{
+              fontSize: '13px',
+              color: 'var(--text-secondary)',
+              textAlign: 'center',
+              marginBottom: '8px',
+              lineHeight: '1.5'
+            }}>
+              We've sent a magic sign-in link to:
+            </p>
+            <p style={{
+              fontSize: '15px',
               color: 'var(--neon-cyan)',
+              textAlign: 'center',
               fontWeight: 'bold',
-              cursor: 'pointer',
-              textDecoration: 'underline'
-            }}
-            onClick={() => {
-              setIsLogin(!isLogin);
-              setErrorMsg(null);
-              setSyncStatus(null);
-            }}
-          >
-            {isLogin ? 'Sign Up' : 'Sign In'}
-          </span>
-        </div>
+              marginBottom: '24px',
+              wordBreak: 'break-all'
+            }}>
+              {email.trim().toLowerCase()}
+            </p>
+            <p style={{
+              fontSize: '12px',
+              color: 'var(--text-muted)',
+              textAlign: 'center',
+              marginBottom: '24px',
+              lineHeight: '1.6'
+            }}>
+              Click the link in the email to sign in. The link expires in 15 minutes and can only be used once.
+            </p>
+
+            <button 
+              className="btn btn-secondary" 
+              style={{ width: '100%', padding: '10px', gap: '8px', fontSize: '13px' }}
+              onClick={handleResend}
+              id="auth-resend-link"
+            >
+              <ArrowLeft size={16} />
+              Resend Magic Link
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
