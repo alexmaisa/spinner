@@ -26,7 +26,7 @@ stop: ## Stop all native application processes (ports 8080, 5173) and Docker con
 	@echo "🛑 Stopping all native processes running on ports 8080 (backend) and 5173 (frontend)..."
 	@-lsof -t -i:8080 -i:5173 | xargs kill -9 2>/dev/null || echo "No native processes found on port 8080 or 5173."
 	@echo "🛑 Stopping any Docker containers..."
-	@-docker compose -f docker/docker-compose.yml down 2>/dev/null || true
+	@-docker compose -f docker/compose.yaml down 2>/dev/null || true
 	@echo "✅ All application instances stopped."
 
 clean: ## Delete SQLite database files to reset state
@@ -36,7 +36,7 @@ clean: ## Delete SQLite database files to reset state
 
 build: ## Build the production Docker image locally
 	@echo "🐳 Building Docker image locally via Docker Compose..."
-	@docker compose -f docker/docker-compose.yml build
+	@docker compose -f docker/compose.yaml build
 	@echo "✅ Docker image built successfully."
 
 lint: ## Run linting and formatting on Go backend and React frontend
@@ -48,5 +48,5 @@ lint: ## Run linting and formatting on Go backend and React frontend
 
 docker-dev: ## Run the entire stack inside local Docker in detached mode
 	@echo "🐳 Starting Spinner application in Docker containers..."
-	@docker compose -f docker/docker-compose.yml up -d
+	@docker compose -f docker/compose.yaml up -d
 	@echo "✅ Application running in background. Access http://localhost:8080"
