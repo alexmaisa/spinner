@@ -3,6 +3,7 @@ package email
 import (
 	"fmt"
 	"log"
+	"net/mail"
 	"net/smtp"
 	"os"
 	"strings"
@@ -35,15 +36,28 @@ func SendMagicLink(cfg *Config, toEmail, magicToken, baseURL string) error {
 	subject := "Sign in to Spinner"
 	htmlBody := buildMagicLinkHTML(verifyURL)
 
+	// Parse SMTP sender address to isolate the bare email address and the display name.
+	// This prevents syntax errors (e.g. Gmail SMTP 555 5.5.2) when using formatted From fields.
+	fromAddr, err := mail.ParseAddress(cfg.From)
+	if err != nil {
+		log.Printf("SMTP Warning: Failed to parse From address '%s': %v. Using as-is.", cfg.From, err)
+		fromAddr = &mail.Address{
+			Name:    "Spinner",
+			Address: cfg.From,
+		}
+	} else if fromAddr.Name == "" {
+		fromAddr.Name = "Spinner"
+	}
+
 	// Construct the email message with MIME headers
 	msg := fmt.Sprintf(
-		"From: Spinner <%s>\r\n"+
+		"From: %s\r\n"+
 			"To: %s\r\n"+
 			"Subject: %s\r\n"+
 			"MIME-Version: 1.0\r\n"+
 			"Content-Type: text/html; charset=\"UTF-8\"\r\n"+
 			"\r\n%s",
-		cfg.From, toEmail, subject, htmlBody,
+		fromAddr.String(), toEmail, subject, htmlBody,
 	)
 
 	addr := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
@@ -54,7 +68,8 @@ func SendMagicLink(cfg *Config, toEmail, magicToken, baseURL string) error {
 		auth = smtp.PlainAuth("", cfg.Username, cfg.Password, cfg.Host)
 	}
 
-	err := smtp.SendMail(addr, auth, cfg.From, []string{toEmail}, []byte(msg))
+	// Use the bare email address (fromAddr.Address) for the envelope sender
+	err = smtp.SendMail(addr, auth, fromAddr.Address, []string{toEmail}, []byte(msg))
 	if err != nil {
 		log.Printf("SMTP Error: Failed to send magic link to %s: %v", toEmail, err)
 		return fmt.Errorf("failed to send email: %w", err)
