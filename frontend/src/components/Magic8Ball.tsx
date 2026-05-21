@@ -160,12 +160,13 @@ export const Magic8Ball: React.FC = () => {
                       color: predictionColor,
                       fontSize: '16px',
                       fontWeight: '900',
-                      width: '130px',
+                      width: '120px',
                       textAlign: 'center',
                       lineHeight: '1.35',
                       fontFamily: 'monospace',
                       position: 'absolute',
-                      top: '60px',
+                      top: '106px',
+                      transform: 'translateY(-50%)',
                       letterSpacing: '0.04em',
                       textShadow: `0 0 10px ${predictionColor}`
                     }}>
