@@ -2,35 +2,49 @@ package api
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
 	"github.com/alexmaisa/spinner/backend/internal/database"
+	"github.com/alexmaisa/spinner/backend/internal/email"
 	"github.com/alexmaisa/spinner/backend/internal/models"
 	"github.com/golang-jwt/jwt/v5"
 )
 
 var jwtSecret = []byte(getEnv("JWT_SECRET", "spinner-default-secret-key-super-secure"))
 
+// SMTP configuration loaded once at startup.
+var smtpConfig = email.LoadConfig()
+
+// frontendURL is the base URL for the frontend (used for magic-link redirects).
+var frontendURL = getEnv("FRONTEND_URL", "http://localhost:5173")
+
+// emailRegex validates basic email format.
+var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
+
 type contextKey string
 
 const UserContextKey contextKey = "user"
 
+// Claims represents the JWT claims payload.
 type Claims struct {
-	UserID   int64  `json:"user_id"`
-	Username string `json:"username"`
+	UserID int64  `json:"user_id"`
+	Email  string `json:"email"`
 	jwt.RegisteredClaims
 }
 
-// GenerateJWT creates a JWT token signed with our secret key.
-func GenerateJWT(userID int64, username string) (string, error) {
-	expirationTime := time.Now().Add(72 * time.Hour)
+// GenerateJWT creates a JWT token signed with our secret key (30-day expiry).
+func GenerateJWT(userID int64, email string) (string, error) {
+	expirationTime := time.Now().Add(30 * 24 * time.Hour) // 30 days
 	claims := &Claims{
-		UserID:   userID,
-		Username: username,
+		UserID: userID,
+		Email:  email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -87,80 +101,113 @@ func RequireAuth(next http.Handler) http.Handler {
 	})
 }
 
-// RegisterHandler handles user registration.
-func RegisterHandler(w http.ResponseWriter, r *http.Request) {
+// MagicLinkRequestHandler handles magic-link login requests.
+// POST /api/auth/magic-link — accepts {"email":"user@example.com"}
+func MagicLinkRequestHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, `{"error":"Method not allowed"}`, http.StatusMethodNotAllowed)
 		return
 	}
 
-	var req models.RegisterRequest
+	var req models.MagicLinkRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, `{"error":"Invalid request payload"}`, http.StatusBadRequest)
 		return
 	}
 
-	req.Username = strings.TrimSpace(req.Username)
-	if req.Username == "" || len(req.Password) < 6 {
-		http.Error(w, `{"error":"Username cannot be empty and password must be at least 6 characters"}`, http.StatusBadRequest)
-		return
-	}
-
-	user, err := database.CreateUser(req.Username, req.Password)
-	if err != nil {
-		// Logically, a duplicate username is the most common constraint error here
+	req.Email = strings.TrimSpace(strings.ToLower(req.Email))
+	if !emailRegex.MatchString(req.Email) {
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusConflict)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Username already exists"})
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Please enter a valid email address"})
 		return
 	}
 
-	token, err := GenerateJWT(user.ID, user.Username)
-	if err != nil {
-		http.Error(w, `{"error":"Failed to generate auth token"}`, http.StatusInternalServerError)
+	// Generate a cryptographically secure random token
+	tokenBytes := make([]byte, 32)
+	if _, err := rand.Read(tokenBytes); err != nil {
+		http.Error(w, `{"error":"Failed to generate secure token"}`, http.StatusInternalServerError)
+		return
+	}
+	magicToken := hex.EncodeToString(tokenBytes)
+
+	// Store the token with 15-minute expiry
+	expiresAt := time.Now().Add(15 * time.Minute)
+	if err := database.CreateMagicToken(req.Email, magicToken, expiresAt); err != nil {
+		http.Error(w, `{"error":"Failed to create login token"}`, http.StatusInternalServerError)
+		return
+	}
+
+	// Determine the base URL for the magic link verification endpoint
+	baseURL := getEnv("BASE_URL", "")
+	if baseURL == "" {
+		// Fall back to constructing from the request
+		scheme := "http"
+		if r.TLS != nil {
+			scheme = "https"
+		}
+		if fwdProto := r.Header.Get("X-Forwarded-Proto"); fwdProto != "" {
+			scheme = fwdProto
+		}
+		baseURL = scheme + "://" + r.Host
+	}
+
+	// Send the magic link email
+	if err := email.SendMagicLink(smtpConfig, req.Email, magicToken, baseURL); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to send magic link email. Please try again."})
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(models.AuthResponse{
-		Token:    token,
-		Username: user.Username,
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Magic link sent! Check your email inbox.",
 	})
 }
 
-// LoginHandler handles user authentication.
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
+// MagicLinkVerifyHandler verifies the magic token and redirects to the frontend with a JWT.
+// GET /api/auth/verify?token=xxx
+func MagicLinkVerifyHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
 		http.Error(w, `{"error":"Method not allowed"}`, http.StatusMethodNotAllowed)
 		return
 	}
 
-	var req models.LoginRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, `{"error":"Invalid request payload"}`, http.StatusBadRequest)
+	tokenStr := r.URL.Query().Get("token")
+	if tokenStr == "" {
+		http.Error(w, "Missing token parameter", http.StatusBadRequest)
 		return
 	}
 
-	user, err := database.AuthenticateUser(req.Username, req.Password)
+	// Verify the magic token
+	userEmail, err := database.VerifyMagicToken(tokenStr)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		// Redirect to frontend with error
+		redirectURL := frontendURL + "/?auth_error=" + err.Error()
+		http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 		return
 	}
 
-	token, err := GenerateJWT(user.ID, user.Username)
+	// Find or create the user
+	user, err := database.FindOrCreateUserByEmail(userEmail)
 	if err != nil {
-		http.Error(w, `{"error":"Failed to generate auth token"}`, http.StatusInternalServerError)
+		redirectURL := frontendURL + "/?auth_error=Account creation failed"
+		http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(models.AuthResponse{
-		Token:    token,
-		Username: user.Username,
-	})
+	// Generate JWT (30-day session)
+	jwtToken, err := GenerateJWT(user.ID, user.Email)
+	if err != nil {
+		redirectURL := frontendURL + "/?auth_error=Token generation failed"
+		http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
+		return
+	}
+
+	// Redirect to frontend with the JWT
+	redirectURL := frontendURL + "/?auth_token=" + jwtToken
+	http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 }
 
 func getEnv(key, fallback string) string {
