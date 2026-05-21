@@ -1,0 +1,29 @@
+# Git files
+.git
+.github
+.forgejo
+.gitignore
+README.md
+CONTRIBUTING.md
+
+# Build artifacts & local dependencies
+node_modules/
+frontend/node_modules/
+frontend/dist/
+backend/bin/
+bin/
+
+# Environment secrets
+.env
+.env.local
+
+# Databases & logs
+*.db
+*.db-journal
+*.log
+
+# OS & Editor files
+.DS_Store
+.vscode/
+.idea/
+*.swp
