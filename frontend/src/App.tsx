@@ -770,9 +770,11 @@ export default function App() {
 
       {/* Premium Footer Bar */}
       <footer className="footer">
-        <span>© 2026 Benny Maisa</span>
+        <span>
+          © 2026 <a href="https://repo.alexmaisa.my.id/alexmaisa" target="_blank" rel="noopener noreferrer" className="footer-link">Benny Maisa</a>
+        </span>
         <span className="footer-bullet">•</span>
-        <span>Crafted for decision makers</span>
+        <span>Spinner: Free, Lightweight & Ad-Free Randomizer</span>
         <span className="footer-bullet">•</span>
         <span>Powered by Go, TypeScript, SQLite & CSPRNG</span>
       </footer>

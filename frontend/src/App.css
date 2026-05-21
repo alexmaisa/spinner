@@ -335,4 +335,16 @@
   text-shadow: 0 0 8px var(--neon-cyan-glow);
 }
 
+.footer-link {
+  color: inherit;
+  text-decoration: none;
+  transition: var(--transition-smooth);
+}
+
+.footer-link:hover {
+  color: var(--neon-cyan);
+  text-shadow: 0 0 8px var(--neon-cyan-glow);
+}
+
+
 
