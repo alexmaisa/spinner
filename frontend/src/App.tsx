@@ -15,7 +15,11 @@ import {
   Radio, 
   Save, 
   History,
-  Dices
+  Dices,
+  HelpCircle,
+  LayoutGrid,
+  Tv,
+  Layers
 } from 'lucide-react';
 import './App.css';
 import logoUrl from './assets/logo.webp';
@@ -24,6 +28,10 @@ import { DiceRoller3D } from './components/DiceRoller3D';
 import { CoinFlipper3D } from './components/CoinFlipper3D';
 import { ExtraRandomizers } from './components/ExtraRandomizers';
 import { AuthModal } from './components/AuthModal';
+import { Magic8Ball } from './components/Magic8Ball';
+import { PlinkoBoard3D } from './components/PlinkoBoard3D';
+import { SlotMachine } from './components/SlotMachine';
+import { TarotCardDealer } from './components/TarotCardDealer';
 
 // Dynamically resolve API and WebSocket bases for local dev or dockerized production
 const API_BASE = window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1')
@@ -46,7 +54,7 @@ export default function App() {
   }, []);
 
   // Navigation & Authentication states
-  const [activeTab, setActiveTab] = useState<'wheel' | 'dice' | 'coin' | 'extra'>('wheel');
+  const [activeTab, setActiveTab] = useState<'wheel' | 'dice' | 'coin' | 'extra' | '8ball' | 'plinko' | 'slots' | 'tarot'>('wheel');
   const [token, setToken] = useState<string | null>(localStorage.getItem('spinner_token'));
   const [userEmail, setUserEmail] = useState<string | null>(localStorage.getItem('spinner_email'));
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -555,6 +563,38 @@ export default function App() {
                 <Shuffle size={18} />
                 <span>RNG & List Shuffler</span>
               </button>
+              <button 
+                className={`method-item ${activeTab === '8ball' ? 'active' : ''}`}
+                onClick={() => setActiveTab('8ball')}
+                disabled={isMultiplayerMode}
+              >
+                <HelpCircle size={18} />
+                <span>Magic 8-Ball</span>
+              </button>
+              <button 
+                className={`method-item ${activeTab === 'plinko' ? 'active' : ''}`}
+                onClick={() => setActiveTab('plinko')}
+                disabled={isMultiplayerMode}
+              >
+                <LayoutGrid size={18} />
+                <span>Neon Plinko</span>
+              </button>
+              <button 
+                className={`method-item ${activeTab === 'slots' ? 'active' : ''}`}
+                onClick={() => setActiveTab('slots')}
+                disabled={isMultiplayerMode}
+              >
+                <Tv size={18} />
+                <span>Slot Machine</span>
+              </button>
+              <button 
+                className={`method-item ${activeTab === 'tarot' ? 'active' : ''}`}
+                onClick={() => setActiveTab('tarot')}
+                disabled={isMultiplayerMode}
+              >
+                <Layers size={18} />
+                <span>Tarot Dealer</span>
+              </button>
             </div>
           </div>
 
@@ -757,6 +797,10 @@ export default function App() {
           {activeTab === 'dice' && <DiceRoller3D />}
           {activeTab === 'coin' && <CoinFlipper3D />}
           {activeTab === 'extra' && <ExtraRandomizers />}
+          {activeTab === '8ball' && <Magic8Ball />}
+          {activeTab === 'plinko' && <PlinkoBoard3D />}
+          {activeTab === 'slots' && <SlotMachine />}
+          {activeTab === 'tarot' && <TarotCardDealer />}
         </main>
       </div>
 
