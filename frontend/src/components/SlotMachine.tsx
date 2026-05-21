@@ -93,6 +93,13 @@ export const SlotMachine: React.FC = () => {
         setWinner(null);
         setGameResult('lose');
       }
+
+      // Silent reset: instantly snap offsets back to baseline copies without transition
+      setReelOffsets([
+        -(idx1 * itemHeight),
+        -(idx2 * itemHeight),
+        -(idx3 * itemHeight)
+      ]);
       setIsSpinning(false);
     }, 3300);
   };
@@ -178,7 +185,7 @@ export const SlotMachine: React.FC = () => {
                 {/* Reel strip mapping items */}
                 <div style={{
                   transform: `translateY(${reelOffsets[reelIdx]}px)`,
-                  transition: isSpinning ? 'transform 2.6s cubic-bezier(0.15, 0.85, 0.3, 1)' : 'transform 0.4s ease',
+                  transition: isSpinning ? 'transform 2.6s cubic-bezier(0.15, 0.85, 0.3, 1)' : 'none',
                   display: 'flex',
                   flexDirection: 'column'
                 }}>
@@ -359,7 +366,12 @@ export const SlotMachine: React.FC = () => {
           <textarea
             className="glass-input"
             value={optionsText}
-            onChange={(e) => setOptionsText(e.target.value)}
+            onChange={(e) => {
+              setOptionsText(e.target.value);
+              setReelOffsets([0, 0, 0]);
+              setWinner(null);
+              setGameResult(null);
+            }}
             placeholder="Apple\nBanana\nCherry"
             style={{ flex: 1, minHeight: '150px', fontSize: '13px', fontFamily: 'monospace', resize: 'none' }}
             disabled={isSpinning}
@@ -367,7 +379,12 @@ export const SlotMachine: React.FC = () => {
           <button
             className="btn btn-secondary"
             style={{ width: '100%', padding: '10px', fontSize: '12px', gap: '6px' }}
-            onClick={() => setOptionsText("Jackpot\nLucky 7\nDiamond\nWild Card\nFree Spin")}
+            onClick={() => {
+              setOptionsText("Jackpot\nLucky 7\nDiamond\nWild Card\nFree Spin");
+              setReelOffsets([0, 0, 0]);
+              setWinner(null);
+              setGameResult(null);
+            }}
             disabled={isSpinning}
           >
             <RotateCw size={12} /> Reset to Defaults
