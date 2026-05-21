@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/badge/Status-Active-22c55e" alt="Status">
   <img src="https://img.shields.io/badge/Platform-Web-64748b" alt="Platform">
   <img src="https://img.shields.io/badge/Tech-Go%20%7C%20TypeScript%20%7C%20SQLite%20%7C%20Docker-3b82f6" alt="Tech">
-  <img src="https://img.shields.io/badge/Engine-Cloudflare%20%7C%20M--Lab%20%7C%20Ookla-00bcd4" alt="Engine">
+  <img src="https://img.shields.io/badge/Randomizer-CSPRNG-00bcd4" alt="Randomizer CSPRNG">
 </p>
 
 ---
