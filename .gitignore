@@ -86,3 +86,6 @@ frontend/dist-ssr/
 .parcel-cache/
 .cache/
 .turbo/
+
+# --- Local Release Notes & Drafts ---
+release_notes_*
