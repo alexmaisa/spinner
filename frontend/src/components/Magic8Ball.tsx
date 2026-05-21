@@ -65,7 +65,7 @@ export const Magic8Ball: React.FC = () => {
         {/* Floating 3D Orb Area */}
         <div style={{
           position: 'relative',
-          height: '280px',
+          height: '480px',
           width: '100%',
           display: 'flex',
           alignItems: 'center',
@@ -78,14 +78,14 @@ export const Magic8Ball: React.FC = () => {
             className={`cyber-orb ${isShaking ? 'orb-shake' : ''}`}
             onClick={getPrediction}
             style={{
-              width: '200px',
-              height: '200px',
+              width: '420px',
+              height: '420px',
               borderRadius: '50%',
               background: 'radial-gradient(circle at 35% 35%, rgba(30, 41, 59, 0.95) 0%, rgba(8, 12, 20, 1) 70%)',
               border: '2px solid rgba(255, 255, 255, 0.08)',
               boxShadow: isShaking
-                ? '0 0 50px rgba(139, 92, 246, 0.5), inset 0 0 30px rgba(6, 182, 212, 0.3)'
-                : '0 8px 32px 0 rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(255,255,255,0.02)',
+                ? '0 0 90px rgba(139, 92, 246, 0.6), inset 0 0 60px rgba(6, 182, 212, 0.4)'
+                : '0 16px 64px rgba(0, 0, 0, 0.75), inset 0 0 40px rgba(255,255,255,0.03)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -100,8 +100,8 @@ export const Magic8Ball: React.FC = () => {
               position: 'absolute',
               top: '10%',
               left: '10%',
-              width: '60px',
-              height: '35px',
+              width: '126px',
+              height: '74px',
               borderRadius: '50%',
               background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 80%)',
               transform: 'rotate(-30deg)',
@@ -110,12 +110,12 @@ export const Magic8Ball: React.FC = () => {
 
             {/* Inner Window Display */}
             <div style={{
-              width: '100px',
-              height: '100px',
+              width: '220px',
+              height: '220px',
               borderRadius: '50%',
               background: 'rgba(8, 12, 20, 0.9)',
               border: '1px solid rgba(255,255,255,0.05)',
-              boxShadow: 'inset 0 0 15px rgba(0,0,0,0.8)',
+              boxShadow: 'inset 0 14px 35px rgba(0,0,0,0.95)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -129,15 +129,15 @@ export const Magic8Ball: React.FC = () => {
                   style={{
                     width: '0',
                     height: '0',
-                    borderLeft: '42px solid transparent',
-                    borderRight: '42px solid transparent',
-                    borderBottom: '76px solid rgba(15, 23, 42, 0.95)',
+                    borderLeft: '95px solid transparent',
+                    borderRight: '95px solid transparent',
+                    borderBottom: '165px solid rgba(15, 23, 42, 0.95)',
                     position: 'absolute',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    filter: `drop-shadow(0 0 10px ${predictionColor})`,
+                    filter: `drop-shadow(0 0 15px ${predictionColor})`,
                     borderBottomColor: 'rgba(15, 23, 42, 0.95)'
                   }}
                 >
@@ -145,29 +145,29 @@ export const Magic8Ball: React.FC = () => {
                   <div style={{
                     width: '0',
                     height: '0',
-                    borderLeft: '40px solid transparent',
-                    borderRight: '40px solid transparent',
-                    borderBottom: '72px solid transparent',
+                    borderLeft: '88px solid transparent',
+                    borderRight: '88px solid transparent',
+                    borderBottom: '154px solid transparent',
                     borderBottomColor: 'rgba(8, 12, 20, 0.9)',
                     position: 'absolute',
-                    top: '2px',
-                    left: '-40px',
+                    top: '4px',
+                    left: '-88px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center'
                   }}>
                     <span style={{
                       color: predictionColor,
-                      fontSize: '7px',
-                      fontWeight: '800',
-                      width: '60px',
+                      fontSize: '16px',
+                      fontWeight: '900',
+                      width: '130px',
                       textAlign: 'center',
-                      lineHeight: '1.2',
+                      lineHeight: '1.35',
                       fontFamily: 'monospace',
                       position: 'absolute',
-                      top: '24px',
-                      letterSpacing: '0.02em',
-                      textShadow: `0 0 5px ${predictionColor}`
+                      top: '60px',
+                      letterSpacing: '0.04em',
+                      textShadow: `0 0 10px ${predictionColor}`
                     }}>
                       {prediction}
                     </span>
@@ -176,7 +176,7 @@ export const Magic8Ball: React.FC = () => {
               ) : isShaking ? (
                 <div style={{
                   color: 'var(--neon-purple)',
-                  fontSize: '24px',
+                  fontSize: '56px',
                   fontWeight: 'bold',
                   fontFamily: 'monospace',
                   animation: 'pulse-glow 0.5s ease-in-out infinite'
@@ -184,7 +184,7 @@ export const Magic8Ball: React.FC = () => {
                   ❔
                 </div>
               ) : (
-                <span style={{ fontSize: '32px', filter: 'drop-shadow(0 0 8px rgba(139, 92, 246, 0.6))' }}>🔮</span>
+                <span style={{ fontSize: '72px', filter: 'drop-shadow(0 0 12px rgba(139, 92, 246, 0.6))' }}>🔮</span>
               )}
             </div>
           </div>
@@ -209,8 +209,8 @@ export const Magic8Ball: React.FC = () => {
             animation: orb-shake 0.15s linear infinite;
           }
           @keyframes triangle-float {
-            0% { transform: scale(0) rotate(360deg) translateY(20px); opacity: 0; }
-            100% { transform: scale(1) rotate(0deg) translateY(0); opacity: 1; }
+            0% { transform: scale(0) rotate(360deg) translateY(-90px); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg) translateY(-110px); opacity: 1; }
           }
           .triangle-reveal {
             animation: triangle-float 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
