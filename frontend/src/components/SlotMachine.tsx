@@ -224,7 +224,7 @@ export const SlotMachine: React.FC = () => {
             alignItems: 'center',
             position: 'absolute',
             left: 'calc(100% + 16px)',
-            bottom: '24px',
+            bottom: '65px',
             cursor: 'pointer',
             height: '140px',
             width: '28px',
