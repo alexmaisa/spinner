@@ -22,7 +22,7 @@ jobs:
         with:
           registry: repo.alexmaisa.my.id
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ env.FORGEJO_GLOBAL_TOKEN }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
