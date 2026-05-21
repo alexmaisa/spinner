@@ -1,19 +1,19 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { 
-  Sparkles, 
-  RotateCw, 
-  Coins, 
-  Shuffle, 
-  Share2, 
-  Users, 
-  LogOut, 
-  LogIn, 
-  Trash2, 
-  Copy, 
-  Check, 
-  Link, 
-  Radio, 
-  Save, 
+import {
+  Sparkles,
+  RotateCw,
+  Coins,
+  Shuffle,
+  Share2,
+  Users,
+  LogOut,
+  LogIn,
+  Trash2,
+  Copy,
+  Check,
+  Link,
+  Radio,
+  Save,
   History,
   Dices,
   HelpCircle,
@@ -44,7 +44,7 @@ const WS_BASE = window.location.origin.includes('localhost') || window.location.
 
 export default function App() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 992);
-  
+
   useEffect(() => {
     const handleWindowResize = () => {
       setIsMobile(window.innerWidth <= 992);
@@ -447,8 +447,8 @@ export default function App() {
           {token ? (
             <div className="nav-user">
               <span style={{ color: 'var(--neon-cyan)', fontWeight: '500', fontSize: '13px' }}>{userEmail}</span>
-              <button 
-                className="btn btn-secondary" 
+              <button
+                className="btn btn-secondary"
                 style={{ padding: '6px 12px', gap: '6px', fontSize: '13px' }}
                 onClick={() => {
                   loadHistory();
@@ -458,8 +458,8 @@ export default function App() {
                 <History size={16} />
                 History
               </button>
-              <button 
-                className="btn btn-secondary" 
+              <button
+                className="btn btn-secondary"
                 style={{ padding: '6px 12px', gap: '6px', fontSize: '13px' }}
                 onClick={handleLogout}
               >
@@ -468,8 +468,8 @@ export default function App() {
               </button>
             </div>
           ) : (
-            <button 
-              className="btn btn-primary" 
+            <button
+              className="btn btn-primary"
               style={{ padding: '8px 16px', gap: '6px', fontSize: '13px' }}
               onClick={() => setShowAuthModal(true)}
             >
@@ -531,7 +531,7 @@ export default function App() {
           <div style={{ marginBottom: '10px' }}>
             <h4 className="sidebar-title">Decision Methods</h4>
             <div className="method-list" style={{ marginTop: '8px' }}>
-              <button 
+              <button
                 className={`method-item ${activeTab === 'wheel' ? 'active' : ''}`}
                 onClick={() => setActiveTab('wheel')}
                 disabled={isMultiplayerMode}
@@ -539,23 +539,23 @@ export default function App() {
                 <RotateCw size={18} />
                 <span>Wheel Spinner</span>
               </button>
-              <button 
+              <button
                 className={`method-item ${activeTab === 'dice' ? 'active' : ''}`}
                 onClick={() => setActiveTab('dice')}
                 disabled={isMultiplayerMode}
               >
                 <Dices size={18} />
-                <span>3D Dice Roller</span>
+                <span>Dice Roller</span>
               </button>
-              <button 
+              <button
                 className={`method-item ${activeTab === 'coin' ? 'active' : ''}`}
                 onClick={() => setActiveTab('coin')}
                 disabled={isMultiplayerMode}
               >
                 <Coins size={18} />
-                <span>3D Coin Flipper</span>
+                <span>Coin Flipper</span>
               </button>
-              <button 
+              <button
                 className={`method-item ${activeTab === 'extra' ? 'active' : ''}`}
                 onClick={() => setActiveTab('extra')}
                 disabled={isMultiplayerMode}
@@ -563,7 +563,7 @@ export default function App() {
                 <Shuffle size={18} />
                 <span>RNG & List Shuffler</span>
               </button>
-              <button 
+              <button
                 className={`method-item ${activeTab === '8ball' ? 'active' : ''}`}
                 onClick={() => setActiveTab('8ball')}
                 disabled={isMultiplayerMode}
@@ -571,7 +571,7 @@ export default function App() {
                 <HelpCircle size={18} />
                 <span>Magic 8-Ball</span>
               </button>
-              <button 
+              <button
                 className={`method-item ${activeTab === 'plinko' ? 'active' : ''}`}
                 onClick={() => setActiveTab('plinko')}
                 disabled={isMultiplayerMode}
@@ -579,7 +579,7 @@ export default function App() {
                 <LayoutGrid size={18} />
                 <span>Neon Plinko</span>
               </button>
-              <button 
+              <button
                 className={`method-item ${activeTab === 'slots' ? 'active' : ''}`}
                 onClick={() => setActiveTab('slots')}
                 disabled={isMultiplayerMode}
@@ -587,7 +587,7 @@ export default function App() {
                 <Tv size={18} />
                 <span>Slot Machine</span>
               </button>
-              <button 
+              <button
                 className={`method-item ${activeTab === 'tarot' ? 'active' : ''}`}
                 onClick={() => setActiveTab('tarot')}
                 disabled={isMultiplayerMode}
@@ -602,7 +602,7 @@ export default function App() {
           {activeTab === 'wheel' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
               <h4 className="sidebar-title">Saved Spinners</h4>
-              
+
               {/* Spinner Creation */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <input
@@ -614,8 +614,8 @@ export default function App() {
                   onChange={(e) => setNewConfigTitle(e.target.value)}
                   disabled={isMultiplayerMode}
                 />
-                <button 
-                  className="btn btn-secondary" 
+                <button
+                  className="btn btn-secondary"
                   style={{ width: '100%', padding: '8px 16px', gap: '8px', fontSize: '13px' }}
                   onClick={handleSaveSpinner}
                   disabled={isMultiplayerMode}
@@ -633,8 +633,8 @@ export default function App() {
                   </div>
                 ) : (
                   savedConfigs.map((cfg: any, idx: number) => (
-                    <div 
-                      key={idx} 
+                    <div
+                      key={idx}
                       className={`method-item ${activeConfigId === cfg.id ? 'active' : ''}`}
                       style={{ padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                       onClick={() => {
@@ -649,8 +649,8 @@ export default function App() {
                       <span style={{ fontSize: '13px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '180px' }}>
                         🎯 {cfg.title}
                       </span>
-                      <button 
-                        className="btn-remove" 
+                      <button
+                        className="btn-remove"
                         style={{ padding: '2px' }}
                         onClick={(e) => handleDeleteSpinner(cfg.id, e)}
                         disabled={isMultiplayerMode}
@@ -695,7 +695,7 @@ export default function App() {
 
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                     {isHost && (
-                      <button 
+                      <button
                         className="btn btn-secondary"
                         style={{ padding: '6px 12px', fontSize: '12px', gap: '6px' }}
                         onClick={() => copyToClipboard(`${window.location.origin}/?room=${roomID}`)}
@@ -704,8 +704,8 @@ export default function App() {
                         {copiedLink ? 'Link Copied!' : 'Copy Invitation Link'}
                       </button>
                     )}
-                    <button 
-                      className="btn btn-secondary" 
+                    <button
+                      className="btn btn-secondary"
                       style={{ padding: '6px 12px', fontSize: '12px', border: '1px solid var(--neon-pink)', color: 'var(--neon-pink)' }}
                       onClick={disconnectLiveRoom}
                     >
@@ -737,16 +737,16 @@ export default function App() {
                   </div>
 
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <button 
-                      className="btn btn-secondary" 
+                    <button
+                      className="btn btn-secondary"
                       style={{ padding: '6px 12px', fontSize: '12px', gap: '6px' }}
                       onClick={() => copyToClipboard(shareUrl)}
                     >
                       {copiedLink ? <Check size={14} /> : <Link size={14} />}
                       {copiedLink ? 'Link Copied!' : 'Copy Shareable Link'}
                     </button>
-                    <button 
-                      className="btn btn-primary" 
+                    <button
+                      className="btn btn-primary"
                       style={{ padding: '6px 12px', fontSize: '12px', gap: '6px' }}
                       onClick={startLiveHostRoom}
                     >
@@ -758,7 +758,7 @@ export default function App() {
               )}
 
               {/* Main Interactive Wheel component */}
-              <WheelSpinner 
+              <WheelSpinner
                 initialSegments={wheelSegments}
                 onSegmentsChange={handleSegmentsChange}
                 targetIndex={targetIndex}
@@ -775,8 +775,8 @@ export default function App() {
                       <p style={{ color: 'var(--text-secondary)', fontSize: '13px', marginBottom: '12px' }}>
                         You are the Host! Press co-spin to generate a cryptographically secure RNG outcome and broadcast it to everyone in the room.
                       </p>
-                      <button 
-                        className="btn btn-primary" 
+                      <button
+                        className="btn btn-primary"
                         style={{ width: '100%', maxWidth: '300px', padding: '12px', fontSize: '15px' }}
                         onClick={triggerMultiplayerSpin}
                       >
@@ -806,7 +806,7 @@ export default function App() {
 
       {/* Authentication Modal */}
       {showAuthModal && (
-        <AuthModal 
+        <AuthModal
           apiUrl={API_BASE}
           onClose={() => setShowAuthModal(false)}
         />

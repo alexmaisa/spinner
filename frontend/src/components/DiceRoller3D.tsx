@@ -155,7 +155,7 @@ export const DiceRoller3D: React.FC = () => {
   return (
     <div className="arena-card glass-panel" style={{ gridTemplateColumns: '1fr', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
       <h3 style={{ marginBottom: '24px', background: 'linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontSize: '22px' }}>
-        3D Dice Roller
+        Dice Roller
       </h3>
 
       {/* Dices Display Box */}
