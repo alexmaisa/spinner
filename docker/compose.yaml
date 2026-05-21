@@ -2,31 +2,14 @@ version: '3.8'
 
 services:
   spinner:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
+    image: repo.alexmaisa.my.id/alexmaisa/spinner:latest
     container_name: spinner-app
     ports:
       - "8080:8080"
     volumes:
       - spinner-data:/app/data
     env_file:
-      - ../.env
-    environment:
-      - SMTP_HOST=mailpit
-      - SMTP_PORT=1025
-      - FRONTEND_URL=http://localhost:8080
-      - BASE_URL=http://localhost:8080
-    depends_on:
-      - mailpit
-    restart: always
-
-  mailpit:
-    image: axllent/mailpit:latest
-    container_name: spinner-mailpit
-    ports:
-      - "8025:8025"
-      - "1025:1025"
+      - .env
     restart: always
 
 volumes:
