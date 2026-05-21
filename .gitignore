@@ -7,14 +7,21 @@
 .DS_Store?
 ehthumbs.db
 Thumbs.db
+Icon\r
+.Spotlight-V100
+.Trashes
 
 # --- IDE & Editor Configurations ---
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 *.sublime-project
 *.sublime-workspace
+.project
+.classpath
+.settings/
 
 # --- Environment Secrets (CRITICAL: Do not commit) ---
 .env
@@ -23,22 +30,33 @@ Thumbs.db
 .env.test.local
 .env.production.local
 *.env
+*.env.local
+.env.bak
 
 # --- Databases, WAL & Log Files ---
 *.db
 *.db-journal
 *.db-shm
 *.db-wal
+*.sqlite
+*.sqlite3
+*.sql
 *.log
+logs/
+backend/logs/
+frontend/logs/
 pnpm-debug.log*
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# --- Dependency Directories ---
+# --- Dependency Directories & Alternative Package Managers ---
 node_modules/
 frontend/node_modules/
 .pnpm-store/
+package-lock.json
+yarn.lock
+bun.lockb
 
 # --- Go Build & Test Artifacts ---
 bin/
@@ -50,9 +68,21 @@ backend/bin/
 *.dylib
 *.test
 *.out
+*.prof
+*.cpu
+*.mem
+go.work
+go.work.sum
 backend/spinner.db
 
 # --- Frontend Build & Cache Outputs ---
 frontend/dist/
+frontend/dist-ssr/
 *.tsbuildinfo
 .vite/
+.eslintcache
+.prettiercache
+.stylelintcache
+.parcel-cache/
+.cache/
+.turbo/
