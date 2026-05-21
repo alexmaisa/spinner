@@ -90,11 +90,23 @@
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid transparent;
   transition: var(--transition-smooth);
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 500;
+}
+
+.method-item svg {
+  color: rgba(255, 255, 255, 0.5);
+  transition: var(--transition-smooth);
 }
 
 .method-item:hover {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+.method-item:hover svg {
+  color: var(--text-primary);
 }
 
 .method-item.active {
