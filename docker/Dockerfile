@@ -49,6 +49,8 @@ COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
 # Configure environment variables
 ENV DB_PATH=/app/data/spinner.db
 ENV PORT=8080
+ENV FRONTEND_URL=http://localhost:8080
+ENV BASE_URL=http://localhost:8080
 
 # Expose ports
 EXPOSE 8080
