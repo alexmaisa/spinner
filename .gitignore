@@ -89,3 +89,4 @@ frontend/dist-ssr/
 
 # --- Local Release Notes & Drafts ---
 release_notes_*
+release_notes*.md
