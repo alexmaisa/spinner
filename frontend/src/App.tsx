@@ -91,10 +91,16 @@ export default function App() {
 
   const socketRef = useRef<WebSocket | null>(null);
 
-  // Decode JWT payload to extract email (without a library)
+  // Decode JWT payload to extract email (without a library, supporting base64url)
   const decodeJwtEmail = useCallback((jwt: string): string | null => {
     try {
-      const payload = JSON.parse(atob(jwt.split('.')[1]));
+      const parts = jwt.split('.');
+      if (parts.length < 2) return null;
+      const base64Url = parts[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const padLength = (4 - (base64.length % 4)) % 4;
+      const padded = base64 + '='.repeat(padLength);
+      const payload = JSON.parse(atob(padded));
       return payload.email || null;
     } catch {
       return null;
@@ -116,10 +122,14 @@ export default function App() {
         setUserEmail(email);
         localStorage.setItem('spinner_token', authToken);
         localStorage.setItem('spinner_email', email);
+        // Clean auth params from URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        loadSavedSpinners(authToken);
+      } else {
+        // Clean auth params from URL if token invalid
+        window.history.replaceState({}, document.title, window.location.pathname);
+        loadSavedSpinners(null);
       }
-      // Clean auth params from URL
-      window.history.replaceState({}, document.title, window.location.pathname);
-      loadSavedSpinners();
       return;
     }
 
@@ -143,17 +153,18 @@ export default function App() {
   }, []);
 
   // Fetch saved spinners based on auth state
-  const loadSavedSpinners = async () => {
-    if (token) {
+  const loadSavedSpinners = async (activeToken?: string | null) => {
+    const currentToken = activeToken !== undefined ? activeToken : token;
+    if (currentToken) {
       try {
         const resp = await fetch(`${API_BASE}/api/spinners`, {
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${currentToken}`
           }
         });
         if (resp.ok) {
           const data = await resp.json();
-          setSavedConfigs(data);
+          setSavedConfigs(data || []);
           return;
         }
       } catch (e) {
@@ -627,7 +638,7 @@ export default function App() {
 
               {/* Saved configs list */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', overflowY: 'auto', maxHeight: '180px' }}>
-                {savedConfigs.length === 0 ? (
+                {!savedConfigs || savedConfigs.length === 0 ? (
                   <div style={{ color: 'var(--text-muted)', fontSize: '12px', textAlign: 'center', marginTop: '10px' }}>
                     No saved spinners yet
                   </div>
