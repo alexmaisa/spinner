@@ -4,6 +4,10 @@ on:
   release:
     types: [published]
 
+# Opt into Node.js 24 for all runner actions to avoid deprecation warnings
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 # Explicitly define permissions for security hardening (Principle of Least Privilege)
 permissions:
   contents: read
