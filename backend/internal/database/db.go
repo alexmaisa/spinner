@@ -229,7 +229,7 @@ func GetUserSpinnerConfigs(userID int64) ([]*models.SpinnerConfig, error) {
 	}
 	defer rows.Close()
 
-	var configs []*models.SpinnerConfig
+	configs := []*models.SpinnerConfig{}
 	for rows.Next() {
 		cfg := &models.SpinnerConfig{}
 		var createdAtStr, updatedAtStr string
