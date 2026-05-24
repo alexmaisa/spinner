@@ -1,0 +1,14 @@
+services:
+  spinner:
+    image: ghcr.io/alexmaisa/spinner:latest
+    container_name: spinner-app
+    ports:
+      - "8080:8080"
+    volumes:
+      - spinner-data:/app/data
+    env_file:
+      - .env
+    restart: always
+
+volumes:
+  spinner-data:
