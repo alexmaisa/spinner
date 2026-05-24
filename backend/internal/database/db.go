@@ -282,7 +282,7 @@ func GetUserSpinHistory(userID int64, limit int) ([]*models.SpinHistory, error) 
 	}
 	defer rows.Close()
 
-	var history []*models.SpinHistory
+	history := []*models.SpinHistory{}
 	for rows.Next() {
 		h := &models.SpinHistory{}
 		var createdAtStr string

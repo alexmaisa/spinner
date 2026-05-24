@@ -190,7 +190,7 @@ export default function App() {
       });
       if (resp.ok) {
         const data = await resp.json();
-        setSpinHistory(data);
+        setSpinHistory(data || []);
       }
     } catch (e) {
       console.error('Failed to load spin history:', e);
@@ -515,7 +515,7 @@ export default function App() {
             📜 Cloud Spin History
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto', flex: 1 }}>
-            {spinHistory.length === 0 ? (
+            {!spinHistory || spinHistory.length === 0 ? (
               <div style={{ color: 'var(--text-muted)', fontSize: '13px', textAlign: 'center', marginTop: '16px' }}>
                 No recorded history yet
               </div>
